@@ -9,17 +9,13 @@ This page provides supplemental information and a walkthrough tutorial to accomp
 
 First off ... **Thank you so much for reading!** I know the essay is difficult and strange, but it was incredibly fun to write, and I'm so excited to see it finally out. Thanks for taking the time to learn more about the work. Please know that you are absolutely welcome to contact me with questions. Even if your question(s) seem(s) silly or mundane or intrusive. Trust me -- I'd love to hear from you! 
 
-This tutorial is meant to serve three different purposes:
+This tutorial is meant to serve four different purposes:
 
-1. For finders of fault, it will expose all the flaws so that I may be properly chastised.
-2. For the DH-curious, it will show what this kind of work looks from 'behind the scenes'.
+1. For people who really want to dig into the data elements, whether to evaluate the theory, find mistakes, or take it up yourself, I'll show how.
+2. For the DH-curious, it will give a glimpse of what this kind of work looks from 'behind the scenes'.
 3. For the math-curious, it will suggest a path for incorporating self-directed mathematics learning into coding practice, making both easier.
+4. For me, it'll sketch out a few things I wasn't able to mention in the essay, and to talk about what I think are the most pressing remaining questions.
 
-Before we even begin, there's something important to say. Critics of quantitative analysis in the humanities often like to point out ways that digital humanities scholarship fails to be objective. Choices made in the process of analysis, they point out with grave expressions of concern, change the results of the analysis. What seems like objective truth is really just an arbitrary consequence of your procedures! J'accuse Gavin!
-
-J'avoue! Une observation astucieuse, monsieur! Je ne vous propose pas ici le truc divin de l'objectivité scientifique, ni les outils de nos prétendus vice-rois des humanités numériques, mais plutôt un livre de cuisine rempli de recettes folles pour les intellectuels damnés.
-
-(that was google translate. i don't read french. i was just trying to sound like rimbaud. sorry. but the point remains.)
 
 ### Setup and Data Loading
 
@@ -51,3 +47,8 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Before we even begin, there's something important to say. Critics of quantitative analysis in the humanities often like to point out ways that digital humanities scholarship fails to be objective. Choices made in the process of analysis, they point out with grave expressions of concern, change the results of the analysis. What seems like objective truth is really just an arbitrary consequence of your procedures! J'accuse Gavin!
+
+J'avoue! Une observation astucieuse, monsieur! Je ne vous propose pas ici le truc divin de l'objectivité scientifique, ni les outils de nos prétendus vice-rois des humanités numériques, mais plutôt un livre de cuisine rempli de recettes folles pour les intellectuels damnés.
+
