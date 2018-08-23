@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Figure 2: The virtual pseudo-document
 
-One of the peer reviewers for the article expressed curiosity about Figure 2, wondering exactly how it was created. I don't get into it too deeply in the essay itself, because the technical details really aren't important here at all. The image isn't meant to "prove" anything. It's just meant to demonstrate a basic principle -- which I argue elsewhere seems to hold over the EEBO corpus pretty well -- that semantic variation in a document, when compared to a corpus that contains it, tends vary in the shape of a log-linear model.<sup>*</sup>
+One of the peer reviewers for the article expressed curiosity about Figure 2, wondering exactly how it was created. I don't get into it too deeply in the essay itself, because the technical details really aren't important here at all. The image isn't meant to "prove" anything. It's just meant to demonstrate a basic principle -- which I argue elsewhere seems to hold over the EEBO corpus pretty well -- that semantic variation in a document, when compared to a corpus that contains it, tends to vary in the shape of a log-linear model.<sup>*</sup>
 
 I refer to the virtual document as a Markov model. Randomly generating texts is a fun and complex line of research in information science that I am happy to confess I know very little about. The way I produced this just kind of followed the same procedure Claude Shannon describes in *A Mathematical Theory of Communication*. It isn't particularly complicated and isn't meant to be particularly rigorous conceptually.
 
