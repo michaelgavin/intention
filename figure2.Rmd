@@ -1,0 +1,152 @@
+---
+title: "figure2"
+author: "Michael Gavin"
+date: "August 23, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Figure 2: The virtual pseudo-document
+
+One of the peer reviewers for the article expressed curiosity about Figure 2, wondering exactly how it was created. I don't get into it too deeply in the essay itself, because the technical details really aren't important here at all. The image isn't meant to "prove" anything. It's just meant to demonstrate a basic principle -- which I argue elsewhere seems to hold over the EEBO corpus pretty well -- that semantic variation in a document, when compared to a corpus that contains it, tends vary in the shape of a log-linear model.<sup>*</sup>
+
+I refer to the virtual document as a Markov model. Randomly generating texts is a fun and complex line of research in information science that I am happy to confess I know very little about. The way I produced this just kind of followed the same procedure Claude Shannon describes in *A Mathematical Theory of Communication*. It isn't particularly complicated and isn't meant to be particularly rigorous conceptually.
+
+Here's the script. If you try to run it yourself it'll take a couple hours because it scrolls through 5,000 EEBO documents to generate randomized data.
+
+I begin by getting the EEBO ids from the column names of the `deebo` object (that's the term-document matrix that contains all the term frequency measures):
+```r
+ids = colnames(deebo)
+data(eebo)
+ids = sample(ids, 5000)
+```
+
+Then purely to save computer time and memory, I limit the model to just the 10,000 most frequent words in *V*.
+
+```r
+totals = rowSums(eebo)
+totals = sort(totals, decreasing = T)[1:10000]
+vocab = names(totals)
+```
+
+The next step is to create a big, square joint-distribution matrix that shows how likely each of those 10,000 words is to follow immediately after each other. I call that matrix, `markov` just for fun.
+
+```r
+markov = matrix(0, length(vocab), length(vocab))
+rownames(markov) = vocab
+colnames(markov) = vocab
+
+# This for-loop cycles through the 5000 randomly chosen documents
+for (i in 1:length(ids)) {
+  print(paste("doc", i, "of", length(ids)))
+  id = ids[i]
+  
+  # here's where I load the data. you'll need to change the file path
+  fp = paste("/Users/mgavin/Documents/MLH/EEBO-XML/EEBO-TCP XML/", id, ".xml", sep = "")
+  
+  # this function takes from my tei2r package
+  txt = cleanup(fp)
+  txt = txt[txt %in% vocab]
+  end = length(txt) - 1
+  if (end > 2) {
+    for (j in 1:end) {
+      # in what might be the most poorly designed, inefficient code
+      # ever written, I cycle through each word individually and 
+      # just count the next_word
+      word = txt[j]
+      next_word = txt[j+1]
+      markov[word,next_word] = markov[word,next_word] + 1
+    } 
+  }
+}
+
+# At this point, markov is a big 10K x 10K matrix with
+# raw word counts. I now convert each row into a probability
+# distribution
+p = markov
+for (i in 1:nrow(p)) {
+  p[i,] = p[i,] / sum(p[i,])
+}
+```
+Now that I have the probability distribution, I create a 50,000 token pseudo-document by just starting with a word and selecting what should come next, step-by-step.
+
+```r
+# Because at one point I was planning to contrast the pseudo-document
+# from the actual processed text of Locke's Treatise, I
+# chose "power" as the starting point, but for the purposes
+# of the article this could have been randomly selected.
+starting_word = "power"
+sim_txt = c()
+for (i in 1:50000) {
+  print(i)
+  vec = p[starting_word,]
+  next_word = sample(vec, size = 1, prob = vec)
+  next_word = names(next_word)
+  sim_txt = c(sim_txt, next_word)
+  starting_word = next_word
+}
+```
+Then I create a word-context matrix from the simulated document.
+
+```r
+# This function captures KWIC data (notice the context window of 5 tokens)
+get_context = function(x) {
+  x = sapply(hits, FUN = function(x) return(seq(x-5, x+5)))
+  x = c(x)
+  return(x)
+}
+
+txt = sim_txt
+markov_mat = matrix(0, nrow(eebo), ncol(eebo))
+rownames(markov_mat) = rownames(eebo)
+colnames(markov_mat) = colnames(eebo)
+kws = colnames(eebo)[which(colnames(eebo) %in% txt)]
+for(j in 1:length(kws)) {
+  keyword = kws[j]
+  hits = which(txt == keyword)
+  contexts = get_context(hits)
+  contexts = contexts[which(contexts > 0)]
+  contexts = contexts[which(contexts <= length(txt))]
+  freqs = table(txt[contexts])
+  
+  words = names(freqs)
+  markov_mat[words,keyword] = freqs
+}  
+```
+Now I have a semantic model derived from the simulated document.
+
+```r
+markov_dist = c()
+for (i in 1:nrow(markov_mat)) {
+  print(i)
+  markov_dist = c(markov_dist, semantic_distance(markov_mat[i,], eebo[i,]))
+}
+names(markov_dist) = rownames(eebo)
+
+freqs = table(sim_txt)
+
+markov_dist = markov_dist[names(freqs)]
+freqs = as.numeric(freqs)
+plot(freqs, markov_dist)
+
+```
+The precise look of the plot will vary from instance to instance, and there will be slight differences in the precise measurements you come up with. But in general I feel pretty confident in saying: 
+
+1. How dependent is semantic deviance on frequency? Very related. 
+2. How evenly is semantic variation distribted? Very evenly.
+
+If I were an information scientist I'd probably have to run this whole simulation a few hundred times and record the statistics, but it's really such a simple process I never thought it worth doing, because the outcome really seems baked into the simulation.
+
+In a very non-scientific way, I'll say that every time I've run this -- maybe 5-10 times? -- the plots come out looking pretty much exactly like the one in the article, and the semantic transparency is always around .98, give or take.
+
+### Discussion
+The whole technique of randomly generating documents is one of the weirdly exciting directions computational literary theory could go into. The basic gambit is to devise some process that you think captures something generally true about your corpus, then you use that process to create a virtual document (or virtual corpus), then you compare what you find in the imaginary corpus to whatever you find in the real corpus. The more similar the imaginary world is to the real world, the more accurately your idea describes *something like* real processes. Points where the model gets it wrong become interesting in a new way, because they reveal what the model can't capture.
+
+This basic set of principles informs a main thread of argument through my essay on intention. On one hand, I'm showing a strong relationship between power-law frequency distributions and semantic variation. This is, in and of itself, a pretty cool thing that to my knowledge nobody has ever noticed, certainly not in literary studies. However, on the other hand, I'm also arguing that points where the model breaks down -- where documents exhibit levels of conceptual work that are statistically impossible if generated randomly -- are precisely those points in the corpus where human volition is most clearly visible.
+
+Anyway, it'd be a really cool line of inquiry to think a little longer and harder about what it means to randomly generate a document and what might be learned from the process. I think of this as one of the more exciting frontiers for literary mathematics, and I hope someone's exploring it, but I don't personally know of anyone.
+
+<sup>*</sup> You might object here that I'm being pretty cagey about what it means to "prove" anything, and that what counts as a claim and evidence are being thrown into really weird flux by this style of argument. Fair enough! That's a can of worms I dumped all over the floor.

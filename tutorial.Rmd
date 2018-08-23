@@ -11,32 +11,46 @@ First off ... **Thank you so much for reading!** I know the essay is difficult a
 
 This tutorial is meant to serve three different purposes:
 
-1. For finders of fault, it will expose all the flaws so that I may be properly chastised.
+1. For people really interested in the data itself, it'll provide access.
 2. For the DH-curious, it will show what this kind of work looks from 'behind the scenes'.
 3. For the math-curious, it will suggest a path for incorporating self-directed mathematics learning into coding practice, making both easier.
 
-Before we even begin, there's something important to say. Critics of quantitative analysis in the humanities often like to point out ways that digital humanities scholarship fails to be objective. Choices made in the process of analysis, they point out with grave expressions of concern, change the results of the analysis. What seems like objective truth is really just an arbitrary consequence of your procedures! J'accuse Gavin!
 
-J'avoue! Une observation astucieuse, monsieur! Je ne vous propose pas ici le truc divin de l'objectivité scientifique, ni les outils de nos prétendus vice-rois des humanités numériques, mais plutôt un livre de cuisine rempli de recettes folles pour les intellectuels damnés.
-
-(that was google translate. i don't read french. i was just trying to sound like rimbaud. sorry. but the point remains.)
 
 ### Setup and Data Loading
 
-If you're just reading this online, you don't need to do anything. But if you'd like to follow along and recreate the graphs on your own machine (as well as to play around with analyses of your own) you'll have to download some materials.
+If you're just reading this online, you don't need to do anything. But if you'd like to follow along or do some of this work yourself, you'll have to download some stuff.
 
-Before beginning, you'll need to install
+What you have to download will depend on what you want to do. If you only hope to recreate the graphs on your own machine and you're content with very little independent experimentation, everything you need is available in the `intention` R package, which can be downloaded and installed from Github.
+
+Assuming that you have R installed and the `devtools` package loaded (as well as the `ggplot2` and `Matrix` packages), you can get everything you need by running this command:
+```r
+devtools::install_github("https://michaelgavin.github.com/intention")
+library(intention)
+library(ggplot2)
+library(Matrix)
+```
+
+However, as we'll see, the 3D tensor model I describe in the article creates really big files. You can't hold all of $\mathcal{V}$ in a single file, nor can it be imported all at once into your R environment. As a consequence, I store the data in separate word-context matrices for each document, and the analyses I describe in the article were all performed by scanning across those separately stored files to build composite matrices for analysis. Some of the data files included in this tutorial have already been compiled over the underlying dataset.
+
+The data in the `intention` package is raw data, but it's "raw" kind of like sausage you buy from the grocery store is raw. It's already been thoroughly processed.
+
+I'll explain more about this below. I mention it here only to explain why any scholars hoping to extend beyond this tutorial and play with the underlying data on their own will have to download the full dataset, which is several gigabytes and is stored on [Dataverse](https://dataverse.harvard.edu). The link to my particular repository is [here](https://dataverse.harvard.edu).
+
+**NOTE TO PEER REVIEWERS: the full dataset isn't up yet (as of 08/23/2018) if you'd like access during the review process and it's still not available, please forward a request through the editor.**
+
+### Figure 2. The virtual document
+
+
+
+### Loading and analyzing data
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
 summary(cars)
