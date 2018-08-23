@@ -11,20 +11,11 @@ First off ... **Thank you so much for reading!** I know the essay is difficult a
 
 This tutorial is meant to serve four different purposes:
 
-<<<<<<< HEAD
 1. For people really interested in the data itself, it'll provide access.
-2. For the DH-curious, it will show what this kind of work looks from 'behind the scenes'.
-=======
-1. For people who really want to dig into the data elements, whether to evaluate the theory, find mistakes, or take it up yourself, I'll show how.
 2. For the DH-curious, it will give a glimpse of what this kind of work looks from 'behind the scenes'.
->>>>>>> 3b6a44d198e6a26ceb16087d9c27358ac8c07576
 3. For the math-curious, it will suggest a path for incorporating self-directed mathematics learning into coding practice, making both easier.
 4. For me, it'll sketch out a few things I wasn't able to mention in the essay, and to talk about what I think are the most pressing remaining questions.
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 3b6a44d198e6a26ceb16087d9c27358ac8c07576
 
 ### Setup and Data Loading
 
