@@ -9,16 +9,14 @@ This page provides supplemental information and a walkthrough tutorial to accomp
 
 First off ... **Thank you so much for reading!** I know the essay is difficult and strange, but it was incredibly fun to write, and I'm so excited to see it finally out. Thanks for taking the time to learn more about the work. Please know that you are absolutely welcome to contact me with questions. Even if your question(s) seem(s) silly or mundane or intrusive. Trust me -- I'd love to hear from you! 
 
-This tutorial is meant to serve four different purposes:
+This tutorial is meant to serve three different purposes:
 
-1. For people really interested in the data itself, it'll provide access.
+1. For people really interested in the data itself, it'll provide  all the details and full access.
 2. For the DH-curious, it will give a glimpse of what this kind of work looks from 'behind the scenes'.
-3. For the math-curious, it will suggest a path for incorporating self-directed mathematics learning into coding practice, making both easier.
-4. For me, it'll sketch out a few things I wasn't able to mention in the essay, and to talk about what I think are the most pressing remaining questions.
+4. For me, it'll sketch out a few things I wasn't able to mention in the essay.
 
 
 ### Setup and Data Loading
-
 If you're just reading this online, you don't need to do anything. But if you'd like to follow along or do some of this work yourself, you'll have to download some stuff.
 
 What you have to download will depend on what you want to do. If you only hope to recreate the graphs on your own machine and you're content with very little independent experimentation, everything you need is available in the `intention` R package, which can be downloaded and installed from Github.
@@ -38,6 +36,69 @@ The data in the `intention` package is raw data, but it's "raw" kind of like sau
 I'll explain more about this below. I mention it here only to explain why any scholars hoping to extend beyond this tutorial and play with the underlying data on their own will have to download the full dataset, which is several gigabytes and is stored on [Dataverse](https://dataverse.harvard.edu). The link to my particular repository is [here](https://dataverse.harvard.edu).
 
 **NOTE TO PEER REVIEWERS: the full dataset isn't up yet (as of 08/23/2018) if you'd like access during the review process and it's still not available, please forward a request through the editor.**
+
+### Figure 1. The 3D Model
+The key technical innovation -- or, if not an *innovation* per se, at least the thing that makes what I'm doing in the article really different from other computational research that I know if -- involves the basic data structure. I represent a corpus as a three-dimensional array of data. Here's the image from the article:
+
+![The 3D Corpus Model](./array.png)
+
+In the 3D model, each of the "dimensions" is a **vector space**. This array brings together the vector space of documents, words, and canonical features. As I discuss in the article, this shape can be distorted or changed in various ways and indeed there isn't anything about the mathematical theory that dictates using exactly these dimensions. The only requirement is that each dimension must be consistently measureable across the others. 
+
+What do I mean by "consistently measureable"? You couldn't, for example, represent a document in the 3D model as a matrix of words and paragraphs. Although of course it would be possible to create such a matrix of any individual document, you couldn't compile those matrices into an array because the paragraphs in one document don't exist in any of the others. It's not just that they don't share the exact words, they are ontologically incommensurable. Obviously the first paragraph of *Robinson Crusoe* doesn't exist even once in *Gulliver's Travels*. But you wouldn't say that it appears zero times. That doesn't make sense. Try it:
+
+> The first paragraph of *Robinson Crusoe* appears zero times in *Gulliver's Travels*.
+
+It's sort of true, but it's also just nonsense. By definition, the first paragraph of *Crusoe* is in *Crusoe*, and not in any other document. Even if the first paragraph of *Gulliver's Travels* was word-for-word the same, it'd still be a different paragraph. 
+
+By contrast, words and keywords exist independently of any individual text. They are what they are, even across different documents and regardless of whether they appear in each. It makes perfect sense to say that *Robinson Crusoe* uses the word "presumptuous" zero times.
+
+Just as an aside: From an epistemological standpoint, I think the biggest thing computational studies allow for and depend on is the concept of zero -- the ability to represent absence.
+
+Anyway, *K*, *D*, and *W* must be commensurable, but they're by no means fixed. In the case studies below, you'll see I distort the 3D shape when measuring time by collapsing each document by year. [Elsewhere]("http://culturalanalytics.org/2017/11/scotlands-poetics-of-space-an-experiment-in-geospatial-semantics/") I've experimented with replacing *K* with a list of geographical places. There really are all sorts of things you could do. I also mention a hypothetical study that would represent *K* as a list of canonical features to see how authors distribute words differently across syntactical structures. You could work with a corpus of sonnets and represent *K* as a length-14 list of line numbers. It doesn't matter so long as the dimensions are mutually commensurable across all documents.
+
+But for now let's follow the article in discussing the simplest and most common case, where *W* represents a list of words, *K* a list of high-frequency keywords, and *D* the list of all documents.
+
+In this model, a vector can be specified when two of its dimensions are fixed and the third is treated as a sequence. So in the picture above, you'll see a purple prism running through the middle. That purple box represents a sequence of values **k** for a single word *w* in a single document *d*, where each value of **k** is the frequency that word appears near each keyword in that document.
+
+
+### The EEBO data
+Data for the article was collected during the year 2015, shortly after the release of the Text Creation Partnership's first (Phase I) batch of files. Because in my earlier life I was a scholar of Restoration and eighteenth-century literature, but also because spelling changes over the 1630s present difficulties for big longitudinal studies, I began by focusing primarily on documents published from 1640 to 1699. When I downloaded the files at the time, there were 18,311 files in the corpus from within that date range.
+
+Building the vocabulary of words and keywords was in many ways the most important step in the research. This work supported a couple articles that I published before beginning the "intention" piece: one on [Restoration criticism]("https://muse.jhu.edu/article/634558/summary") and another general introduction to [vector semantics]("https://www.journals.uchicago.edu/doi/abs/10.1086/698174"). Details for how the keywords and vocabulary were finally selected can be found [here](https://github.com/michaelgavin/empson/blob/master/building_eebo.Rmd). The most important things to know:
+
+1. The vocabulary excludes a list of 876 stopwords, made up of a mix of high-frequency words and other oddities from the EEBO transcriptions.
+2. The vocabulary was built by looking at the 20,000 most frequent words (excluding stopwords) from every year. 
+3. The keywords were chosen if they were among the 5,000 most frequent words *every* year, resulting in about 2,000 high-frequency words.
+
+Of these things, the most important issue is the first: the stopwords. A year or so after finishing the data work for the "intention" piece I applied the same principles to a different, smaller corpus, and chose not to exclude stopwords. The problem was that in many cases the conceptual work scores came out all screwy, usually showing the highest work for function words like prepositions and pronouns. So, I tried a couple different normalization techniques, TFIDF and PPMI, but those placed so much weight on low-frequency words, that conceptual work basically just mirrored them.
+
+This means that if you're the kind of scholar who's bothered by stopwords and would like a mathematical theory of meaning to avoid using them, work remains to be done to flesh out the theory.
+
+#### Data in the package
+If you've installed R and the `intention` R package, you'll have access to several important pieces of data.
+
+1. `eebo` is the word-context matrix, $V(W, K)$, representing the elementwise sum of every $D(W, K)$.
+2. `deebo` is the word-document matrix, providing the values of $F$ for each document.
+3. Sample document-level word-context matrices are provided for the following EEBO-TCP files: `A26981`, `A27301`, `A36106`, `A36643`, `A43998`, `A48901`, and `A50919`.
+4. `natlaw`, the composite matrix of works similar to Locke's $Treatise$.
+5. `behn`, the composite matrix of Behn's works.
+
+There are also a few other items included that aren't in matrix format. The items `averages` and `deviations` include some statistics compiled over the full data, `behn_ids` and `locke_ids` contain the TCP id numbers for the items in those subcorpora, and the `vocab` and `keywords` vectors are also in there.
+
+#### Functions in the package
+
+
+
+
+
+
+
+
+So, if we take *d* to be John Locke's *Treatise*, and *w* to be the word "king," the twelve highest keyword-in-context values in **k** are:
+
+"king" (174), "right" (24), "authority" (19), "adam" (19), "power" (16), "man" (15), "god" (14), "people" (13), "himself" (13), "person" (10), "time" (9), and "nature" (9).
+
+
 
 ### Figure 2. The virtual document
 

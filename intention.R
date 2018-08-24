@@ -14,8 +14,8 @@ semantic_distance = function(x, y) {
 }
 
 
-# Semantic work
-semantic_work = function(freq, cos_dist) {
+# Conceptual work
+conceptual_work = function(freq, cos_dist) {
   return(freq * cos_dist)
 }
 
@@ -56,7 +56,7 @@ set_threshold = function(avgs, devs, mu = NULL) {
 }
 
 ### Adjust for corpus norms ###
-semantic_work_adj = function(freq, cos_dist, threshold) {
+conceptual_work_adj = function(freq, cos_dist, threshold) {
   hits = which(freq > 0)
   threshold_scores = rep(0, length(freq))
   threshold_scores[hits] = threshold[freq[hits]]
@@ -80,8 +80,8 @@ res = set_threshold(avgs = averages, devs = deviations)
 d = distances[,"A48901"]
 f = deebo[,"A48901"]
 
-wk = semantic_work(freq = f, cos_dist = d)
-wk_adj = semantic_work_adj(freq = f, cos_dist = d, threshold = res$theta)
+wk = conceptual_work(freq = f, cos_dist = d)
+wk_adj = conceptual_work_adj(freq = f, cos_dist = d, threshold = res$theta)
 
 # Find most similar to Locke
 vec = similarity(deebo, "A48901", margin = 2, fullResults = T)
@@ -134,8 +134,8 @@ for (i in 1:nrow(m)) {
 }
 names(d) = rownames(m)
 
-wk = semantic_work(f, d)
-awk = semantic_work_adj(f, d, res$theta)
+wk = conceptual_work(f, d)
+awk = conceptual_work_adj(f, d, res$theta)
 
 dll = c()
 for (i in 1:nrow(m)) {
@@ -144,7 +144,7 @@ for (i in 1:nrow(m)) {
 }
 names(dll) = rownames(m)
 
-wk_dll = semantic_work(deebo[,"A27301"], dll)
+wk_dll = conceptual_work(deebo[,"A27301"], dll)
 
 dlle = c()
 for (i in 1:nrow(m)) {
@@ -253,7 +253,7 @@ threshold = set_threshold(avgs = n.averages, devs = n.deviations, beta=beta)
 for (i in 1:ncol(distances)) {
   print(i)
   d = semantic_distance_adj(freq = deebo[,i], cos_dist = distances[,i], threshold = n.averages)
-  w = semantic_work_adj(freq = deebo[,i], cos_dist_adj = d)
+  w = conceptual_work_adj(freq = deebo[,i], cos_dist_adj = d)
   distances[,i] = w
 }
 
@@ -261,7 +261,7 @@ for (i in 1:ncol(distances)) {
 for (i in 1:nrow(distances)) {
   print(i)
   acd = semantic_distance_adj(deebo[i,], cos_dist = distances[i,], threshold = threshold)
-  w = semantic_work_adj(deebo[i,], acd)
+  w = conceptual_work_adj(deebo[i,], acd)
   w[is.na(w)] = 0
   distances[i,] = w
 }
