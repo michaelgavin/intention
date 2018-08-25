@@ -22,20 +22,20 @@ If you're just reading this online, you don't need to do anything. But if you'd 
 What you have to download will depend on what you want to do. If you only hope to recreate the graphs on your own machine and you're content with very little independent experimentation, everything you need is available in the `intention` R package, which can be downloaded and installed from Github.
 
 Assuming that you have R installed and the `devtools` package loaded (as well as the `ggplot2` and `Matrix` packages), you can get everything you need by running this command:
+
 ```r
 devtools::install_github("https://michaelgavin.github.com/intention")
 library(intention)
+library(empson)
 library(ggplot2)
 library(Matrix)
 ```
 
-However, as we'll see, the 3D tensor model I describe in the article creates really big files. You can't hold all of $\mathcal{V}$ in a single file, nor can it be imported all at once into your R environment. As a consequence, I store the data in separate word-context matrices for each document, and the analyses I describe in the article were all performed by scanning across those separately stored files to build composite matrices for analysis. Some of the data files included in this tutorial have already been compiled over the underlying dataset.
-
-The data in the `intention` package is raw data, but it's "raw" kind of like sausage you buy from the grocery store is raw. It's already been thoroughly processed.
+However, as we'll see, the 3D tensor model I describe in the article creates really big files. You can't hold all of $\mathcal{V}$ in a single file, nor can it be imported all at once into your R environment. As a consequence, I store the data in separate word-context matrices for each document, and the analyses I describe in the article were all performed by scanning across those separately stored files to build composite matrices for analysis. Some of the data files included in this tutorial have already been compiled over the underlying dataset. The data isn't raw data, if by "raw" one means naturally occuring and untouched by humans. It's "raw" like food you buy at the grocery store is raw, which is to say, it's been thoroughly processed.
 
 I'll explain more about this below. I mention it here only to explain why any scholars hoping to extend beyond this tutorial and play with the underlying data on their own will have to download the full dataset, which is several gigabytes and is stored on [Dataverse](https://dataverse.harvard.edu). The link to my particular repository is [here](https://dataverse.harvard.edu).
 
-**NOTE TO PEER REVIEWERS: the full dataset isn't up yet (as of 08/23/2018) if you'd like access during the review process and it's still not available, please forward a request through the editor.**
+**NOTE TO PEER REVIEWERS: the full dataset isn't up yet (as of 08/25/2018) if you'd like access during the review process and it's still not available, please forward a request through the editor.**
 
 ### Figure 1. The 3D Model
 The key technical innovation -- or, if not an *innovation* per se, at least the thing that makes what I'm doing in the article really different from other computational research that I know if -- involves the basic data structure. I represent a corpus as a three-dimensional array of data. Here's the image from the article:
@@ -52,13 +52,11 @@ It's sort of true, but it's also just nonsense. By definition, the first paragra
 
 By contrast, words and keywords exist independently of any individual text. They are what they are, even across different documents and regardless of whether they appear in each. It makes perfect sense to say that *Robinson Crusoe* uses the word "presumptuous" zero times.
 
-Just as an aside: From an epistemological standpoint, I think the biggest thing computational studies allow for and depend on is the concept of zero -- the ability to represent absence.
-
-Anyway, *K*, *D*, and *W* must be commensurable, but they're by no means fixed. In the case studies below, you'll see I distort the 3D shape when measuring time by collapsing each document by year. [Elsewhere]("http://culturalanalytics.org/2017/11/scotlands-poetics-of-space-an-experiment-in-geospatial-semantics/") I've experimented with replacing *K* with a list of geographical places. There really are all sorts of things you could do. I also mention a hypothetical study that would represent *K* as a list of canonical features to see how authors distribute words differently across syntactical structures. You could work with a corpus of sonnets and represent *K* as a length-14 list of line numbers. It doesn't matter so long as the dimensions are mutually commensurable across all documents.
+Anyway, *K*, *D*, and *W* must be commensurable, but they're by no means fixed. In the case studies below, you'll see I distort the 3D shape when measuring time by collapsing each document by year. [Elsewhere]("http://culturalanalytics.org/2017/11/scotlands-poetics-of-space-an-experiment-in-geospatial-semantics/") I've experimented with replacing *K* with a list of geographical places. There really are all sorts of things you could do. I also mention a hypothetical study that would represent *K* as a list of canonical grammatical structures to see how authors distribute words differently across their syntax. You could work with a corpus of sonnets and represent *K* as a length-14 list of line numbers. It doesn't matter so long as the dimensions are mutually commensurable across all documents.
 
 But for now let's follow the article in discussing the simplest and most common case, where *W* represents a list of words, *K* a list of high-frequency keywords, and *D* the list of all documents.
 
-In this model, a vector can be specified when two of its dimensions are fixed and the third is treated as a sequence. So in the picture above, you'll see a purple prism running through the middle. That purple box represents a sequence of values **k** for a single word *w* in a single document *d*, where each value of **k** is the frequency that word appears near each keyword in that document.
+In this model, a vector can be specified when two of its dimensions are fixed and the third is treated as a sequence. So in the picture above, you'll see a purple prism running through the middle. That purple box represents a sequence of values **k** for a single word *w* in a single document *d*, where each value of **k** is the frequency with which that word appears near each keyword in that document.
 
 
 ### The EEBO data
@@ -66,7 +64,7 @@ Data for the article was collected during the year 2015, shortly after the relea
 
 Building the vocabulary of words and keywords was in many ways the most important step in the research. This work supported a couple articles that I published before beginning the "intention" piece: one on [Restoration criticism]("https://muse.jhu.edu/article/634558/summary") and another general introduction to [vector semantics]("https://www.journals.uchicago.edu/doi/abs/10.1086/698174"). Details for how the keywords and vocabulary were finally selected can be found [here](https://github.com/michaelgavin/empson/blob/master/building_eebo.Rmd). The most important things to know:
 
-1. The vocabulary excludes a list of 876 stopwords, made up of a mix of high-frequency words and other oddities from the EEBO transcriptions.
+1. The vocabulary excludes a list of 876 stopwords, made up of a mix of high-frequency words and other oddities from the EEBO transcriptions. (The full list is included in the `intention` R package as the dataset `stopwords`.)
 2. The vocabulary was built by looking at the 20,000 most frequent words (excluding stopwords) from every year. 
 3. The keywords were chosen if they were among the 5,000 most frequent words *every* year, resulting in about 2,000 high-frequency words.
 
@@ -77,26 +75,157 @@ This means that if you're the kind of scholar who's bothered by stopwords and wo
 #### Data in the package
 If you've installed R and the `intention` R package, you'll have access to several important pieces of data.
 
-1. `eebo` is the word-context matrix, $V(W, K)$, representing the elementwise sum of every $D(W, K)$.
-2. `deebo` is the word-document matrix, providing the values of $F$ for each document.
+1. `eebo` is the word-context matrix, *V(W, K)*, representing the elementwise sum of every *D(W, K)*.
+2. `deebo` is the word-document matrix, providing the values of *F* for each document.
 3. Sample document-level word-context matrices are provided for the following EEBO-TCP files: `A26981`, `A27301`, `A36106`, `A36643`, `A43998`, `A48901`, and `A50919`.
-4. `natlaw`, the composite matrix of works similar to Locke's $Treatise$.
+4. `natlaw`, the composite matrix of works similar to Locke's *Treatise*.
 5. `behn`, the composite matrix of Behn's works.
 
 There are also a few other items included that aren't in matrix format. The items `averages` and `deviations` include some statistics compiled over the full data, `behn_ids` and `locke_ids` contain the TCP id numbers for the items in those subcorpora, and the `vocab` and `keywords` vectors are also in there.
 
 #### Functions in the package
+The functions in the package follow what's described in the article. I wrote the R functions to mimic as closely as possible the mathematical expressions.
+
+1. `semantic_distance()` measures the cosine distance that separates any two vectors of numbers.
+2. `conceptual_work()` is an embarrassingly simple function. It just multiplies two vectors together.
+3. `semantic_transparency()` calculates the entropy of a vector, taken to the base of that vector's length.
+4. `set_threshold()` draws a normalization curve over a set of averages and standard deviations.
+5. `conceptual_word_adj()` calculates normalized conceptual work by adjusting each value to the threshold.
+
+I also borrow a couple functions from my old `empson` package for computing over matrices:
+
+6. `similarity()` just iterates `semantic_distance()` over a matrix.
+7. `similarity_map()` draws the word clouds used in the article.
+
+Details of each function can be found in the documentation for the R package.
+
+## Article Walkthrough
+Now we're ready to go through the article and to see how each visualization was created...
+
+#### Figure 2. Word deviance and frequency in a simulated document
+... and I already have to apologize again. Creating the simulated document is a pretty complicated process. It's too much for this tutorial, so I wrote a separate guide just for it. You can read it [here]("https://github.com/michaelgavin/intention/blob/master/figure2.Rmd").
+
+#### Figure 3. 
+First load the corpus-level data:
+```r
+data(eebo)
+data(deebo)
+```
+
+Now load the data for an individual document and compare:
+```{r]
+data("A48901")
+# Now calculate delta for each word
+delta = c()
+for (i in 1:nrow(m)) {
+  delta = c(delta, semantic_distance(m[i,],eebo[i,]))
+}
+delta[is.na(delta)] = 0
+```
+
+Now get the frequencies and compare them.
+
+```r
+# Get the frequency and calculate work
+freqs = deebo[,"A48901"]
+c_work = conceptual_work(freq = freqs, cos_dist = delta)
+
+# Filter out the vocabulary and plot words used in the document
+ord = which(freqs > 0)
+plot(freqs[ord], delta[ord], type = "p", pch = 20, col = "gray")
+
+# Select the twelve hardest workers and print them as labels
+hits = order(c_work, decreasing = T)[1:12]
+text(freqs[hits], delta[hits], labels = names(c_work[hits]))
+```
+
+The same process can be repeated for each chart in Figure 3. Document matrices are available for the following: `A26981`, `A27301`, `A36106`, `A36643`, `A43998`, `A48901`, and `A50919`.
+
+#### Figure 4. Word deviance and frequency over EEBO-TCP corpus.
+This chart is my favorite one in the whole piece. I realize that for many readers the ideas will be blurring into each other at this point, but this chart really strikes to the core idea of the entire piece.
+
+Remember, the challenge of reading for intention is the challenge of attributing a meaning to an attribute. Typically as in Figure 3 we're working at the document level, and we want to differentiate meanings that are generated by the document from those that are inherited from elsewhere. When the data is really small -- when, for example, a segment of discourse is very short or a word is used just a few times -- then in the vast majority of cases such discourse isn't producing meanings at all. It's just selecting from a field of possible meanings. Other times, it's really pushing some idea in a strange way; it's producing a new concept or using an existing concept in a new way. 
+
+If we're going to attribute a meaning to an attribute -- in Figure 3, we're attributing meanings to the TCP number, though I cheat in the article itself and pretend I'm attributing them to authors in the more conventional sense -- we need some theoretical mechanism for differentiating such cases. The whole point of Figure 4 is to articulate a framework for making this distinction, and it lays out something like a general law for how words function in the intellectual history of concepts.<sup>1</sup>
+
+Stated in prose, this law says that semantic deviance correlates powerfully with word frequency. Words used just once or twice are unlikely to correspond closely to the patterns of use over the full corpus. Words used frequently tend to veer towards the norm. However, those norms exist categorically, not really, and individual cases will always vary from them. *To characterize the meaningfulness of a statement is to describe its position along a curve of semantic normality.*
+
+![The curve of semantic normality](./figure4.jpeg)
+
+In real life, we do this all the time. We have to decide whether the discourse that presents itself to us is doing so using concepts we already know or whether it's really trying to push something new. Usually it's not. To understand people is mostly just a matter of matching what they say to ideas you're already carrying around up in your own mind. Sometimes, though, it doesn't work that way. Every time you interpret any statement -- whether that statement is part of a conversation or a line of a poem or some goofy essay about the theory of authorial intention -- you're making these kinds of judgments. To describe the meaning of a statement is to triangulate between the meanings that seem to be expressed and the meanings inherited from elsewhere. "Normalized conceptual work" creates a baseline estimate for making such judgments in the context of corpus analytics.
+
+What makes this graph potentially confusing is that it looks very similar to Figure 3, but it's calculating something very different. The x-axis shows all frequencies from 1 to 1,000. The y-axis shows the average semantic deviance for every word in every document used at that frequency.
+
+What are all the words Locke uses exactly 7 times? On average, what's the semantic deviance that separates their vectors from the corpus-level vectors? What about other documents that use words exactly 7 times? Or 17 times? Or 717?
+
+(If you have any experience with network science, you can think of the x-axis of Figure 4 as showing something like the degree distribution for nodes in a network.)
+
+What's weird about this is that the points in Figure 4 don't correspond with individual words, like the points in Figure 3 do. Instead, they abstract over every document that uses any word at a given frequency level. Any time any document uses any word 7 times, the deviance is compared to all the other times documents used words 7 times. That average is the y-axis of Figure 4.
+
+Calculating all these semantic distances takes a long time. **Don't try this at home!** (unless you don't need to use your computer for a few hours.) However, here's the full script for reference. -- I won't describe it step-by-step here. Email me if you have any questions or if you find any mistakes.
+```r
+mat_loc = "/home/mgavin/EEBO-RDA/"
+
+filenames = paste(mat_loc, ids, ".rda", sep="")
+
+cos_sim = function(x,y) {
+  return((x %*% y) / (sqrt(x %*% x) * sqrt(y %*% y)))
+}
+
+distances = matrix(0, nrow(eebo), length(ids))
+colnames(distances) = ids
+rownames(distances) = rownames(eebo)
+
+for (i in 1:length(filenames)) {
+  print(i)
+  id = ids[i]
+  load(filenames[i])
+  vec = c()
+  for (j in 1:nrow(m)) {
+    distance = 1 - cos_sim(m[j,], eebo[j,])
+    vec = c(vec, distance)
+  }
+  distances[,i] = vec
+}
+
+# Now need freq averages and deviations
+hits = which(deebo > 0)
+frequencies = deebo[hits]
+dist_vec = distances[hits]
+
+n = 1:max(frequencies)
+averages = c()
+deviations = c()
+
+for (i in 1:length(n)) {
+  print(paste(i, "of", length(n)))
+  ord = which(frequencies == i)
+  averages = c(averages, mean(dist_vec[ord], na.rm = T))
+  deviations = c(deviations, sd(dist_vec[ord], na.rm = T))
+}
+```
+For anybody working with the `intention` R package, the `averages` and `deviations` objects are saved and ready to go. So you can just load them into your R environment.
+
+```r
+data(averages)
+data(deviations)
+```
+
+We need to calculate the values for variables in the following formulas:
+
+![](./delta.gif)
+
+and 
+
+![](./phi.gif)
+
+Where bar-delta in the first formula is the `averages` vector and little sigma in the second formula is the `deviations` vector.
+
+These take the form of a linear model in which one of the variables has been transformed by the logarithm. I'm really *so* not a statistician but I knew I couldn't just fit a regular linear regression model to this data, and I knew that what I wanted was a nice little line swooping through the middle like the Nike swoosh, just as the dashed line in Figure 4 swooshes. (From my reading in the field of statistics I have learned that "swooshes" is the technical term.) So I did what any self-respecting data scientist does: I stole code from StackExchange and repurposed it for my data. The webpage I borrowed the code from is [here]("https://stats.stackexchange.com/questions/176595/simple-log-regression-model-in-r"). 
+
+A log-linear model takes the form *y = ax + b* but the value of *x* has been log transformed to account for the way the curve flattens as it extends to higher values.
 
 
-
-
-
-
-
-
-So, if we take *d* to be John Locke's *Treatise*, and *w* to be the word "king," the twelve highest keyword-in-context values in **k** are:
-
-"king" (174), "right" (24), "authority" (19), "adam" (19), "power" (16), "man" (15), "god" (14), "people" (13), "himself" (13), "person" (10), "time" (9), and "nature" (9).
 
 
 
@@ -117,9 +246,12 @@ knitr::opts_chunk$set(echo = TRUE)
 summary(cars)
 ```
 
+
 #### A brief digression concerning 'objectivity'
 
 Critics of quantitative analysis in the humanities often like to point out ways that digital humanities scholarship fails to be objective. Choices made in the process of analysis, they point out with grave expressions of concern, change the results of the analysis. What seems like objective truth is really just an arbitrary consequence of your procedures! *J'accuse Gavin!*
 
 *J'avoue! Une observation astucieuse, monsieur! Je ne vous propose pas ici le truc divin de l'objectivité scientifique, ni les outils de nos prétendus vice-rois des humanités numériques, mais plutôt un livre de cuisine rempli de recettes folles pour les intellectuels damnés!*
+
+<sup>1</sup> I apologize for using the word "law" here. I don't mean to suggest that this notion has been demonstrated to exist empirically, but just it strikes me (rightly? wrongly?) as a mathematical inevitability.
 
