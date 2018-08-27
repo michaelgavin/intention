@@ -133,14 +133,14 @@ freqs = as.numeric(freqs)
 plot(freqs, markov_dist)
 
 ```
-The precise look of the plot will vary from instance to instance, and there will be slight differences in the precise measurements you come up with. But in general I feel pretty confident in saying: 
+The precise look of the plot will vary from instance to instance, and there will be slight differences in the precise measurements you come up with. But in general I feel pretty confident in saying, in a document simulated this way: 
 
-1. How dependent is semantic deviance on frequency? Very related. 
-2. How evenly is semantic variation distribted? Very evenly.
+1. How dependent is semantic deviance on frequency? Very dependent. 
+2. How evenly is semantic variation distributed? Very evenly.
 
 If I were an information scientist I'd probably have to run this whole simulation a few hundred times and record the statistics, but it's really such a simple process I never thought it worth doing, because the outcome really seems baked into the simulation.
 
-In a very non-scientific way, I'll say that every time I've run this -- maybe 5-10 times? -- the plots come out looking pretty much exactly like the one in the article, and the semantic transparency is always around .98, give or take.
+In a very hand-waving kind of way, I'll say that every time I've run this -- maybe 5-10 times? -- the plots come out looking pretty much exactly like the one in the article, and the semantic transparency is always around .98, give or take.
 
 ### Discussion
 The whole technique of randomly generating documents is one of the weirdly exciting directions computational literary theory could go into. The basic gambit is to devise some process that you think captures something generally true about your corpus, then you use that process to create a virtual document (or virtual corpus), then you compare what you find in the imaginary corpus to whatever you find in the real corpus. The more similar the imaginary world is to the real world, the more accurately your idea describes *something like* real processes. Points where the model gets it wrong become interesting in a new way, because they reveal what the model can't capture.

@@ -25,34 +25,38 @@ Assuming that you have R installed and the `devtools` package loaded (as well as
 
 ```r
 devtools::install_github("https://michaelgavin.github.com/intention")
+```
+
+Because the data files in the `intention` package are pretty big, it might take a while to download. Once it does, you need to activate the libraries in R:
+
+```r
 library(intention)
-library(empson)
 library(ggplot2)
 library(Matrix)
 ```
 
-However, as we'll see, the 3D tensor model I describe in the article creates really big files. You can't hold all of $\mathcal{V}$ in a single file, nor can it be imported all at once into your R environment. As a consequence, I store the data in separate word-context matrices for each document, and the analyses I describe in the article were all performed by scanning across those separately stored files to build composite matrices for analysis. Some of the data files included in this tutorial have already been compiled over the underlying dataset. The data isn't raw data, if by "raw" one means naturally occuring and untouched by humans. It's "raw" like food you buy at the grocery store is raw, which is to say, it's been thoroughly processed.
+However, as we'll see, the 3D tensor model I describe in the article creates really big files. You can't hold all of the data from the corpus in a single file, nor can it be imported all at once into your R environment. As a consequence, I store the data in separate word-context matrices for each document, and the analyses I describe in the article were all performed by scanning across those separately stored files to build composite matrices for analysis. Some of the data files included in this tutorial have already been compiled over the underlying dataset. The data isn't raw data, if by "raw" one means naturally occuring and untouched by humans. It's "raw" like food you buy at the grocery store is raw, which is to say, it's been thoroughly processed.
 
 I'll explain more about this below. I mention it here only to explain why any scholars hoping to extend beyond this tutorial and play with the underlying data on their own will have to download the full dataset, which is several gigabytes and is stored on [Dataverse](https://dataverse.harvard.edu). The link to my particular repository is [here](https://dataverse.harvard.edu).
 
 **NOTE TO PEER REVIEWERS: the full dataset isn't up yet (as of 08/25/2018) if you'd like access during the review process and it's still not available, please forward a request through the editor.**
 
 ### Figure 1. The 3D Model
-The key technical innovation -- or, if not an *innovation* per se, at least the thing that makes what I'm doing in the article really different from other computational research that I know if -- involves the basic data structure. I represent a corpus as a three-dimensional array of data. Here's the image from the article:
+The key technical innovation -- or, if not an *innovation* per se, at least the thing that makes what I'm doing in the article really different from other computational research that I know of -- involves the basic data structure. I represent a corpus as a three-dimensional array of data. Here's the image from the article:
 
 ![The 3D Corpus Model](./array.png)
 
 In the 3D model, each of the "dimensions" is a **vector space**. This array brings together the vector space of documents, words, and canonical features. As I discuss in the article, this shape can be distorted or changed in various ways and indeed there isn't anything about the mathematical theory that dictates using exactly these dimensions. The only requirement is that each dimension must be consistently measureable across the others. 
 
-What do I mean by "consistently measureable"? You couldn't, for example, represent a document in the 3D model as a matrix of words and paragraphs. Although of course it would be possible to create such a matrix of any individual document, you couldn't compile those matrices into an array because the paragraphs in one document don't exist in any of the others. It's not just that they don't share the exact words, they are ontologically incommensurable. Obviously the first paragraph of *Robinson Crusoe* doesn't exist even once in *Gulliver's Travels*. But you wouldn't say that it appears zero times. That doesn't make sense. Try it:
+What do I mean by "consistently measureable"? To get a handle on this concept, let's think of a matrix structure that wouldn't be compatible with a 3D array. You couldn't, for example, represent a document in the 3D model as a matrix of words and paragraphs. Although of course it would be possible to create such a matrix of any individual document -- with words for the rows and a column for each paragraph -- you couldn't compile those matrices into an array because the paragraphs in one document don't exist in any of the others. It's not just that they don't share the exact words, they are ontologically incommensurable. Obviously the first paragraph of *Robinson Crusoe* doesn't exist even once in *Gulliver's Travels*. But you wouldn't say that it appears zero times. That doesn't make sense. Try it:
 
 > The first paragraph of *Robinson Crusoe* appears zero times in *Gulliver's Travels*.
 
-It's sort of true, but it's also just nonsense. By definition, the first paragraph of *Crusoe* is in *Crusoe*, and not in any other document. Even if the first paragraph of *Gulliver's Travels* was word-for-word the same, it'd still be a different paragraph. 
+It's sort of true, but it's also just nonsense. By definition, the first paragraph of *Crusoe* is in *Crusoe*, and not in any other document. Even if the first paragraph of *Gulliver's Travels* was word-for-word the same as the first paragraph of *Robinson Cruse*, it'd still be a different paragraph. Identical, but distinct.
 
 By contrast, words and keywords exist independently of any individual text. They are what they are, even across different documents and regardless of whether they appear in each. It makes perfect sense to say that *Robinson Crusoe* uses the word "presumptuous" zero times.
 
-Anyway, *K*, *D*, and *W* must be commensurable, but they're by no means fixed. In the case studies below, you'll see I distort the 3D shape when measuring time by collapsing each document by year. [Elsewhere]("http://culturalanalytics.org/2017/11/scotlands-poetics-of-space-an-experiment-in-geospatial-semantics/") I've experimented with replacing *K* with a list of geographical places. There really are all sorts of things you could do. I also mention a hypothetical study that would represent *K* as a list of canonical grammatical structures to see how authors distribute words differently across their syntax. You could work with a corpus of sonnets and represent *K* as a length-14 list of line numbers. It doesn't matter so long as the dimensions are mutually commensurable across all documents.
+Anyway, *K*, *D*, and *W* must be commensurable, but they're by no means fixed. In the case studies below, you'll see I distort the 3D shape when measuring time by collapsing each document by year. [Elsewhere](http://culturalanalytics.org/2017/11/scotlands-poetics-of-space-an-experiment-in-geospatial-semantics/) I've experimented with replacing *K* with a list of geographical places. There really are all sorts of things you could do. I also mention a hypothetical study that would represent *K* as a list of canonical grammatical structures to see how authors distribute words differently across their syntax. You could work with a corpus of sonnets and represent *K* as a length-14 list of line numbers. It doesn't matter so long as the dimensions are mutually commensurable across all documents.
 
 But for now let's follow the article in discussing the simplest and most common case, where *W* represents a list of words, *K* a list of high-frequency keywords, and *D* the list of all documents.
 
@@ -62,7 +66,7 @@ In this model, a vector can be specified when two of its dimensions are fixed an
 ### The EEBO data
 Data for the article was collected during the year 2015, shortly after the release of the Text Creation Partnership's first (Phase I) batch of files. Because in my earlier life I was a scholar of Restoration and eighteenth-century literature, but also because spelling changes over the 1630s present difficulties for big longitudinal studies, I began by focusing primarily on documents published from 1640 to 1699. When I downloaded the files at the time, there were 18,311 files in the corpus from within that date range.
 
-Building the vocabulary of words and keywords was in many ways the most important step in the research. This work supported a couple articles that I published before beginning the "intention" piece: one on [Restoration criticism]("https://muse.jhu.edu/article/634558/summary") and another general introduction to [vector semantics]("https://www.journals.uchicago.edu/doi/abs/10.1086/698174"). Details for how the keywords and vocabulary were finally selected can be found [here](https://github.com/michaelgavin/empson/blob/master/building_eebo.Rmd). The most important things to know:
+Building the vocabulary of words and keywords was in many ways the most important step in the research. This work supported a couple articles that I published before beginning the "intention" piece: one on [Restoration criticism](https://muse.jhu.edu/article/634558/summary) and another general introduction to [vector semantics](https://www.journals.uchicago.edu/doi/abs/10.1086/698174). Details for how the keywords and vocabulary were finally selected can be found [here](https://github.com/michaelgavin/empson/blob/master/building_eebo.Rmd). The most important things to know:
 
 1. The vocabulary excludes a list of 876 stopwords, made up of a mix of high-frequency words and other oddities from the EEBO transcriptions. (The full list is included in the `intention` R package as the dataset `stopwords`.)
 2. The vocabulary was built by looking at the 20,000 most frequent words (excluding stopwords) from every year. 
@@ -70,7 +74,7 @@ Building the vocabulary of words and keywords was in many ways the most importan
 
 Of these things, the most important issue is the first: the stopwords. A year or so after finishing the data work for the "intention" piece I applied the same principles to a different, smaller corpus, and chose not to exclude stopwords. The problem was that in many cases the conceptual work scores came out all screwy, usually showing the highest work for function words like prepositions and pronouns. So, I tried a couple different normalization techniques, TFIDF and PPMI, but those placed so much weight on low-frequency words, that conceptual work basically just mirrored them.
 
-This means that if you're the kind of scholar who's bothered by stopwords and would like a mathematical theory of meaning to avoid using them, work remains to be done to flesh out the theory.
+This means that if you're the kind of scholar who's bothered by stopwords and would like a mathematical theory of meaning to avoid using them, work remains to be done to flesh out the theory. I provide a sketch of one possible direction for such work below, in the discussion of Figure 4.
 
 #### Data in the package
 If you've installed R and the `intention` R package, you'll have access to several important pieces of data.
@@ -103,13 +107,13 @@ Details of each function can be found in the documentation for the R package.
 Now we're ready to go through the article and to see how each visualization was created...
 
 #### Figure 2. Word deviance and frequency in a simulated document
-... and I already have to apologize again. Creating the simulated document is a pretty complicated process. It's too much for this tutorial, so I wrote a separate guide just for it. You can read it [here]("https://github.com/michaelgavin/intention/blob/master/figure2.Rmd").
+... and I already have to apologize again. Creating the simulated document is a pretty complicated process. It's too much for this tutorial, so I wrote a separate guide just for it. You can read it [here](https://github.com/michaelgavin/intention/blob/master/figure2.Rmd).
 
 #### Figure 3. 
-First load the corpus-level data:
+First load the corpus-level data. Because they're big files, they're stored as 'external data' in the package, which means the command to load them is just a bit more complicated that for the other data items.
 ```r
-data(eebo)
-data(deebo)
+load(system.file("extdata", "eebo.rda", package = "intention"))
+load(system.file("extdata", "deebo.rda", package = "intention"))
 ```
 
 Now load the data for an individual document and compare:
@@ -139,14 +143,46 @@ hits = order(c_work, decreasing = T)[1:12]
 text(freqs[hits], delta[hits], labels = names(c_work[hits]))
 ```
 
+![](./locke_plot.jpeg)
+
 The same process can be repeated for each chart in Figure 3. Document matrices are available for the following: `A26981`, `A27301`, `A36106`, `A36643`, `A43998`, `A48901`, and `A50919`.
 
+Feel free to play around with the data a bit. For example, to see the scores for conceptual work for each of the top 12 terms:
+
+```r
+sort(c_work, decreasing = T)[1:12]
+```
+
+To calculate the transparency:
+
+```r
+semantic_transparency(c_work)
+```
+
+It's fun, too, to just play around with semantic similarity to see how it functions in different contexts. So, you can see how Locke construes "children":
+
+```r
+similarity(m, "children")
+```
+
+Then look at how Richard Baxter construes children:
+
+```r
+data("A26981")
+similarity(m, "children")
+```
+"Why chickens?" you might be wondering. It comes from Baxter's paraphrase of the Gospel of St. Luke, chapter 13 verse 34:
+
+>  O sinful, miserable Jerusalem! How ost would I have gathered thy whole City and Nation (old and young) into my bosom of Love, and my Church, by making you my Disciples, as tenderly as a Hen doth gather and love her Chickens, not casting out your Children, but taking in your Nation, as God did before, if you had not cut off your selves by unbelief, and obstinate rejecting the Grace offered to your Nation?
+
+This is one of the things that makes semantic modeling really fun. You are basically free associating over historical discourse and following writers over trains of thought that weren't necessarily even explicit to themselves. Baxter never said to himself: "I associate farms animals with domesticity and divine order" but it's a powerful line of thought that runs through much Christian commentary of the period.
+
 #### Figure 4. Word deviance and frequency over EEBO-TCP corpus.
-This chart is my favorite one in the whole piece. I realize that for many readers the ideas will be blurring into each other at this point, but this chart really strikes to the core idea of the entire piece.
+This chart is my favorite one in the whole piece. I realize that for many readers the ideas will be blurring into each other at this point in the article, but this chart really strikes to the core idea of the theory.
 
 Remember, the challenge of reading for intention is the challenge of attributing a meaning to an attribute. Typically as in Figure 3 we're working at the document level, and we want to differentiate meanings that are generated by the document from those that are inherited from elsewhere. When the data is really small -- when, for example, a segment of discourse is very short or a word is used just a few times -- then in the vast majority of cases such discourse isn't producing meanings at all. It's just selecting from a field of possible meanings. Other times, it's really pushing some idea in a strange way; it's producing a new concept or using an existing concept in a new way. 
 
-If we're going to attribute a meaning to an attribute -- in Figure 3, we're attributing meanings to the TCP number, though I cheat in the article itself and pretend I'm attributing them to authors in the more conventional sense -- we need some theoretical mechanism for differentiating such cases. The whole point of Figure 4 is to articulate a framework for making this distinction, and it lays out something like a general law for how words function in the intellectual history of concepts.<sup>1</sup>
+If we're going to attribute a meaning to an attribute -- in Figure 3, we're attributing meanings to the TCP number, though I cheat in the article itself and pretend I'm attributing them to authors in the more conventional sense -- we need some theoretical mechanism for differentiating such cases. The whole point of Figure 4 is to articulate a framework for making this distinction, and it lays out something like a general law for how words and documents function in the intellectual history of concepts.<sup>1</sup>
 
 Stated in prose, this law says that semantic deviance correlates powerfully with word frequency. Words used just once or twice are unlikely to correspond closely to the patterns of use over the full corpus. Words used frequently tend to veer towards the norm. However, those norms exist categorically, not really, and individual cases will always vary from them. *To characterize the meaningfulness of a statement is to describe its position along a curve of semantic normality.*
 
@@ -219,17 +255,38 @@ and
 
 ![](./phi.gif)
 
-Where bar-delta in the first formula is the `averages` vector and little sigma in the second formula is the `deviations` vector.
+Where bar-delta in the first formula is the `averages` vector and little-sigma in the second formula is the `deviations` vector.
 
-These take the form of a linear model in which one of the variables has been transformed by the logarithm. I'm really *so* not a statistician but I knew I couldn't just fit a regular linear regression model to this data, and I knew that what I wanted was a nice little line swooping through the middle like the Nike swoosh, just as the dashed line in Figure 4 swooshes. (From my reading in the field of statistics I have learned that "swooshes" is the technical term.) So I did what any self-respecting data scientist does: I stole code from StackExchange and repurposed it for my data. The webpage I borrowed the code from is [here]("https://stats.stackexchange.com/questions/176595/simple-log-regression-model-in-r"). 
+These take the form of a linear model in which one of the variables has been transformed by the logarithm. I a regular linear regression model wouldn't fit this data, and I knew that what I wanted was a nice little line swooping through the middle like the Nike swoosh, just as the dashed line in Figure 4 swooshes. (From my reading in the field of statistics I have learned that "swooshes" is the technical term.) So I did what any self-respecting data researcher does: I stole code from StackExchange and repurposed it for my data. The webpage I borrowed the code from is [here]("https://stats.stackexchange.com/questions/176595/simple-log-regression-model-in-r"). 
 
-A log-linear model takes the form *y = ax + b* but the value of *x* has been log transformed to account for the way the curve flattens as it extends to higher values.
+A log-linear model takes the form *y = ax + b* but the value of *x* has been log transformed to account for the way the curve flattens as it extends to higher values. Using the `lm()` function in R for drawing linear models, the function uses a least-squares method to estimate the y value for each point along the x-axis. In the `intention` package this is all built into the `set_threshold` function, but here's the relevant code:
 
+```r
+x = 1:length(averages)
+fit = lm(averages ~ log(x))
+```
+The `lm()` function estimates the slope and intercept for the linear model. To see how they plot on the y axis, you plug those values into the *y = ax + b* formula (remembering to log-transform x).
 
+```r
+y = (fit$coefficients[2] * log(x)) + fit$coefficients[1]
+plot(x[1:1000], y[1:1000], ylim = c(0,1))
+```
 
+![](./log_plot.jpeg)
 
+I like to call this the "curve of semantic normality." It shows a general model for the relationship between a word, a document, and a corpus.
 
-### Figure 2. The virtual document
+It's possible to plot these relations for each document, as in Figure 3, but an alterative line of research would be to plot these relations for each word. How does the shape of the curve vary from word to word? Which words are flattest, meaning that they tend to consolidate around a single coherent use pattern? Which words are tallest, with the highest level of variation?
+
+The mathematical theory of intention predicts, I believe, that the curve will be flattest for monosemous terms (that is, words with pretty much one meaning) but taller for polysemous nouns, modifiers, and verbs, and tallest by far for function words (prepositions, pronouns, and articles).
+
+There are many possible extensions of this line of research, but one refers back to the question of stopwords, mentioned above. If it's right that different kinds of words are shaped differently, comparing the curve for each word against the normal corpus-level curve could differentiate stopwords. Under this model, high-frequency words could be kept in if they are semantically invariant but tossed if they display wide variation at high frequencies. (Such variation would suggest that prevalence of the term does not correlate to the other semantic content of the documents.) 
+
+In practical terms, this would allow us to develop a rigorously conceived method to keep high-frequency words that carry a lot of semantic weight (in EEBO, this'd be words like "god") but that get thrown out by methods based simply on document frequency. Right now we just have to curate the stopwords more or less by hand.
+
+In theoretical terms, this would help us begin to formalize what we mean by stopwords themselves. What does it mean for words to perform more or less conceptual work? How should we orient our understanding of literary history and corpus linguistics accordingly?
+
+### Figure 5. Milton and Dryden
 
 
 
