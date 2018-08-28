@@ -46,13 +46,13 @@ The key technical innovation -- or, if not an *innovation* per se, at least the 
 
 ![The 3D Corpus Model](./array.png)
 
-In the 3D model, each of the "dimensions" is a **vector space**. This array brings together the vector space of documents, words, and canonical features. As I discuss in the article, this shape can be distorted or changed in various ways and indeed there isn't anything about the mathematical theory that dictates using exactly these dimensions. The only requirement is that each dimension must be consistently measureable across the others. 
+In the 3D model, each of the "dimensions" is a **vector space**. This array brings together the vector spaces of documents, words, and canonical features (keywords, in all provided examples). As I discuss in the article, this shape can be distorted or changed in various ways and indeed there isn't anything about the mathematical theory that dictates using exactly these dimensions. The only requirement is that each dimension must be consistently measureable across the others. 
 
 What do I mean by "consistently measureable"? To get a handle on this concept, let's think of a matrix structure that wouldn't be compatible with a 3D array. You couldn't, for example, represent a document in the 3D model as a matrix of words and paragraphs. Although of course it would be possible to create such a matrix of any individual document -- with words for the rows and a column for each paragraph -- you couldn't compile those matrices into an array because the paragraphs in one document don't exist in any of the others. It's not just that they don't share the exact words, they are ontologically incommensurable. Obviously the first paragraph of *Robinson Crusoe* doesn't exist even once in *Gulliver's Travels*. But you wouldn't say that it appears zero times. That doesn't make sense. Try it:
 
 > The first paragraph of *Robinson Crusoe* appears zero times in *Gulliver's Travels*.
 
-It's sort of true, but it's also just nonsense. By definition, the first paragraph of *Crusoe* is in *Crusoe*, and not in any other document. Even if the first paragraph of *Gulliver's Travels* was word-for-word the same as the first paragraph of *Robinson Cruse*, it'd still be a different paragraph. Identical, but distinct.
+It's sort of true, but it's also just nonsense. By definition, the first paragraph of *Crusoe* is in *Crusoe*, and not in any other document. Even if the first paragraph of *Gulliver's Travels* was word-for-word the same as the first paragraph of *Robinson Crusoe*, it'd still be a different paragraph. Identical, but distinct.
 
 By contrast, words and keywords exist independently of any individual text. They are what they are, even across different documents and regardless of whether they appear in each. It makes perfect sense to say that *Robinson Crusoe* uses the word "presumptuous" zero times.
 
@@ -76,7 +76,7 @@ Of these things, the most important issue is the first: the stopwords. A year or
 
 This means that if you're the kind of scholar who's bothered by stopwords and would like a mathematical theory of meaning to avoid using them, work remains to be done to flesh out the theory. I provide a sketch of one possible direction for such work below, in the discussion of Figure 4.
 
-#### Data in the package
+### Data in the package
 If you've installed R and the `intention` R package, you'll have access to several important pieces of data.
 
 1. `eebo` is the word-context matrix, *V(W, K)*, representing the elementwise sum of every *D(W, K)*.
@@ -103,14 +103,11 @@ I also borrow a couple functions from my old `empson` package for computing over
 
 Details of each function can be found in the documentation for the R package.
 
-## Article Walkthrough
-Now we're ready to go through the article and to see how each visualization was created...
+## Figure 2. Word deviance and frequency in a simulated document
+Creating the simulated document is a fairly complicated process, the details of which are largely irrelevant to the argument of the essay. For readers interested in the details of its creation, I wrote a separate guide just for Figure 2. You can read it [here](https://github.com/michaelgavin/intention/blob/master/figure2.Rmd).
 
-#### Figure 2. Word deviance and frequency in a simulated document
-... and I already have to apologize again. Creating the simulated document is a pretty complicated process. It's too much for this tutorial, so I wrote a separate guide just for it. You can read it [here](https://github.com/michaelgavin/intention/blob/master/figure2.Rmd).
-
-#### Figure 3. 
-First load the corpus-level data. Because they're big files, they're stored as 'external data' in the package, which means the command to load them is just a bit more complicated that for the other data items.
+## Figure 3. 
+First load the corpus-level data. Because they're big files, they're stored as 'external data' in the package, which means the command to load them is just a bit more complicated than for the other data items.
 ```r
 load(system.file("extdata", "eebo.rda", package = "intention"))
 load(system.file("extdata", "deebo.rda", package = "intention"))
@@ -257,7 +254,7 @@ and
 
 Where bar-delta in the first formula is the `averages` vector and little-sigma in the second formula is the `deviations` vector.
 
-These take the form of a linear model in which one of the variables has been transformed by the logarithm. I a regular linear regression model wouldn't fit this data, and I knew that what I wanted was a nice little line swooping through the middle like the Nike swoosh, just as the dashed line in Figure 4 swooshes. (From my reading in the field of statistics I have learned that "swooshes" is the technical term.) So I did what any self-respecting data researcher does: I stole code from StackExchange and repurposed it for my data. The webpage I borrowed the code from is [here]("https://stats.stackexchange.com/questions/176595/simple-log-regression-model-in-r"). 
+These take the form of a linear model in which one of the variables has been transformed by the logarithm. I knew a regular linear regression model wouldn't fit this data, and I knew that what I wanted was a nice little line swooping through the middle like the Nike swoosh, just as the dashed line in Figure 4 swooshes. (From my reading in the field of statistics I have learned that "swooshes" is the technical term.) So I did what any self-respecting data researcher does: I stole code from StackExchange and repurposed it for my data. The webpage I borrowed the code from is [here]("https://stats.stackexchange.com/questions/176595/simple-log-regression-model-in-r"). 
 
 A log-linear model takes the form *y = ax + b* but the value of *x* has been log transformed to account for the way the curve flattens as it extends to higher values. Using the `lm()` function in R for drawing linear models, the function uses a least-squares method to estimate the y value for each point along the x-axis. In the `intention` package this is all built into the `set_threshold` function, but here's the relevant code:
 
@@ -276,6 +273,36 @@ plot(x[1:1000], y[1:1000], ylim = c(0,1))
 
 I like to call this the "curve of semantic normality." It shows a general model for the relationship between a word, a document, and a corpus.
 
+This curve is used as the basis for setting a threshold of semantic significance. The linear model takes this form:
+
+![](./curve.gif)
+
+and it's represented in the commands below using this line of code:
+
+```r
+curve_of_semantic_normality = threshold$delta + (threshold$mu * threshold$psi)
+```
+
+The variable mu is set by the researchers based on their judgment and based on how they plan to paraphrase the output of the model into descriptive prose. In most situations, I suggest, they'll either want to use *mu = 0*, which just represents each instance of conceptual work against the average, or empirically using this formula:
+
+![](./set_mu.gif)
+
+which scales the threshold to its first value, under the assumption that any time a document uses a word just once, the author must presume that the word's meaning is inherited from outside the document itself. This presumption is of course never absolute, but nonetheless seems pretty trustworthy to me. In the `set_threshold()` function, any time the `mu` argument is left NA, the parameter is automatically calculated using this parameter.
+
+Quickly, to see how the above formula reduces:
+
+![](./step1.gif)
+
+then simply plug the formula in for mu:
+
+![](./step2.gif)
+
+and solve for theta
+
+![](./step3.gif)
+
+![](./step4.gif)
+
 It's possible to plot these relations for each document, as in Figure 3, but an alterative line of research would be to plot these relations for each word. How does the shape of the curve vary from word to word? Which words are flattest, meaning that they tend to consolidate around a single coherent use pattern? Which words are tallest, with the highest level of variation?
 
 The mathematical theory of intention predicts, I believe, that the curve will be flattest for monosemous terms (that is, words with pretty much one meaning) but taller for polysemous nouns, modifiers, and verbs, and tallest by far for function words (prepositions, pronouns, and articles).
@@ -286,17 +313,167 @@ In practical terms, this would allow us to develop a rigorously conceived method
 
 In theoretical terms, this would help us begin to formalize what we mean by stopwords themselves. What does it mean for words to perform more or less conceptual work? How should we orient our understanding of literary history and corpus linguistics accordingly?
 
-### Figure 5. Milton and Dryden
+## Figure 5. Milton and Dryden
+The charts in Figure 5 are the same as those of Figure 3, but with the normalization curve layered on top to show which words make "the cut." Making the cut means that the use of the term in that document is so far outside normal bounds that it likely has some special meaning in the document, which differs substantially from its general meaning over the full corpus.
 
+```r
+threshold = set_threshold(avgs = averages, devs = deviations)
 
+# Load Paradise Lost
+data(A50919)
 
-### Loading and analyzing data
+# Now calculate delta for each word
+delta = c()
+for (i in 1:nrow(m)) {
+  delta = c(delta, semantic_distance(m[i,],eebo[i,]))
+}
+delta[is.na(delta)] = 0
 
+# Get the frequency and calculate work
+freqs = deebo[,"A50919"]
+c_work = conceptual_work(freq = freqs, cos_dist = delta)
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Filter out the vocabulary and plot words used in the document
+ord = which(freqs > 0)
+plot(freqs[ord], delta[ord], type = "p", pch = 20, col = "gray")
+
+# Select the twelve hardest workers and print them as labels
+hits = order(c_work, decreasing = T)[1:12]
+text(freqs[hits], delta[hits], labels = names(c_work[hits]))
+
+curve_of_semantic_normality = (threshold$mu * threshold$psi) + threshold$delta
+lines(x = 1:max(freqs), y = curve_of_semantic_normality[1:max(freqs)])
+```
+![](./milton_plot.jpeg)
+
+Repeat the same process for *Macflecknoe* (A36643).
+
+## Figure 6
+Now we're getting into the case studies, and the ideas expressed in the main text of the theory start to deform a bit. This process begins with the study of a single document, John Locke's *Two Treatises of Government* (A48901). After a brief digression, I provide the code below.
+
+##### a brief digression
+
+The fun thing about this first case study is that it's basically a stroll through the uncanny valley of digital literary studies. There a very strong assumption in quantitative analysis that what's being studied is a *real thing out there in the real world* and that the model is an *imperfect representation of that thing*. This is a misundertanding of modeling's basic metaphysical problem. We might choose to imagine that a model is a representation of some real thing, but that's an ontological commitment we bring to bear on the object, not a property of the object itself.
+
+This metaphysical problem in the epistemology of modeling is very similar to the problem that plagues twentieth-century debates on the topic of authorial intention. Just as it's perfectly possible and often plausible to behave as if statistics represent something real outside themselves, it's perfectly possible and often plausible to behave as if discourse represents a reality outside itself (an intention, perhaps). In either case, though, there's nothing about discourse that compels such a commitment.
+
+This is why I describe reality as an imaginary apparatus that surrounds explanation. Realities are produced by explanations, and intentions are produced by the critical discourse that names them. (Here I'm riffing of G.E.M. Anscombe more than anyone else.) This is true whether one maintains an intentionalist view of language or an anti-intentionalist view. Either way, you're stuck producing the intentions about which you hope to argue -- this was true of Searle and Derrida and their pointless disagreements, and it'll be true for anyone. It doesn't matter whether you believe what I'm saying here, because you are bound up in the same inexorable logic, versions of which have plagued the history of literary criticism since its inception. (Just ask Jonathan Swift, who coped with this dilemma by attributing it to bad faith.)
+
+For someone doing quantitative analysis, this is actually kind of freeing, because it means that your models are free to produce logics internal to themselves, and you're perfectly free all the same to believe that those logics maintain some analogous relation to the realities you imagine for them.
+
+In practice, if you're doing corpus analytics, this means that the "findings" of your empirical tests will always depend on choices made during data curation and analysis. Everybody knows this and everybody says it, but it's really hard to keep in mind when concrete results of statistical tests seem so close to something like the truth. This why I call it the "uncanny valley of valid explanation" Just as the intentions a biographically inclined scholar finds in a text are produced by the work of contextualization, so too the intentions found by any mathematical procedure will be produced through the act of analysis.
+
+What was fun about writing the Locke case study was the pleasure of scurrying around in the nooks and crannies of the space of this intellectual discomfort. On one hand, I unapologetically refer to my findings as representations of Locke's intent. (They're more trustworthy then any exemplary quotations *you* might choose.) On the other hand, it's inescapably obvious that the findings are produced by the methodology, and it's bizarrely at odds with common sense that changing the corpus of comparison would change Locke's intent.
+
+digression concluded ...
+
+### Table 1.1
+The basic idea of this case study is to perform two related sets of comparisons. I want to compare Locke's *Treatise* to the EEBO model, as above, but I also want to parse into it in a little more detail. Based on what data scientists call my "domain expertise," I knew that Locke joined a vibrant field of debate around questions of natural law, and based on my (whaddaya call it?) "technical good guessery," I figured that it'd be trivially simple to recover documents in that field of debate by just finding those that use words in roughly the same proportion that Locke uses them. Once that subcorpus is identified, I triangulate the conceptual work scores for Locke against those of his peers.
+
+To find the 100 documents most-similar to Locke's *Treatises*, run this command:
+
+```r
+locke_ids = similarity(deebo, "A48901", margin = 2, fullResults = T)
+locke_ids = sort(locke_ids, decreasing = T)[1:100]
+```
+Note that Table 1.1 ranks documents by *distance* but the function above returns *similarity*, so to reproduce the numbers in the table itself you'll have to run the command `locke_ids = 1 - locke_ids`.
+
+If you have downloaded the full dataset, you could write a for loop that iterates over these id numbers, loading the 100 files one-by-one, and each time adding them to the subcorpus matrix. It'd look something like this.
+
+```r
+setwd("C:/Users/mgavin/Desktop/EEBO-RDA")
+ids = names(locke_ids)
+for (i in 1:length(ids)) {
+  print(i)
+  fp = paste(ids[i], ".rda", sep="")
+  load(fp)
+  if (i == 1) {
+    natlaw = m
+  } else {
+    natlaw = natlaw + m
+  }
+}
+```
+Alternatively, you could just load the data from the `intention` package directly.
+
+```r
+data(natlaw)
 ```
 
+### Table 1.2
+Table 1.2 shows normalized conceptual work. To calculate that:
+
+```r
+data("A48901")
+# Now calculate delta for each word
+delta = c()
+for (i in 1:nrow(m)) {
+  delta = c(delta, semantic_distance(m[i,],eebo[i,]))
+}
+locke_delta = delta
+locke_delta[is.na(delta)] = 0
+locke_freqs = deebo[,"A48901"]
+
+```
+Once you have *F* and *Delta* you can calculate the normalized conceptual work. In Table 1.2, I use a more relaxed threshold and set `mu = 0`.
+
+```r
+easy_threshold = set_threshold(avgs = averages, devs = deviations, mu = 0)
+normed_work = conceptual_work_adj(freq = locke_freqs, cos_dist = locke_delta, threshold = easy_threshold$theta)
+```
+And you can calculate the same thing for the `natlaw` matrix and compare to Locke.
+
+```r
+# First save Locke's conceptual work (not normalized)
+locke_work = conceptual_work(freq = locke_freqs, cos_dist = locke_delta)
+
+# Then recalculate delta over the natlaw word-context matrix
+delta = c()
+for (i in 1:nrow(natlaw)) {
+  delta = c(delta, semantic_distance(m[i,],eebo[i,]))
+}
+delta[is.na(delta)] = 0
+natlaw_delta = delta
+
+natlaw_freqs = rowSums(deebo[,names(locke_ids)])
+
+natlaw_work = conceptual_work(natlaw_freqs, natlaw_delta)
+```
+And here we encounter the first place where it's necessary to improvise beyond the ideas articulated in the first section of the essay.
+
+We want to characterize how Locke deviates from his peers. We begin by comparing the `A48901` matrix to `natlaw`.
+
+```r
+# Then recalculate delta between the locke and natlaw matrices
+delta = c()
+for (i in 1:nrow(natlaw)) {
+  delta = c(delta, semantic_distance(m[i,],natlaw[i,]))
+}
+delta[is.na(delta)] = 0
+
+locke_to_natlaw = delta
+```
+We could calculate conceptual work as above by simply multiplying `locke_to_natlaw` with `locke_freqs`. But what we're interested in here is not so much the conceptual work of Locke's *Treatises* as in identifying the points where Locke's work deviates most powerfully from EEBO, compared to his peers' deviation from EEBO. 
+
+```r
+triangulated_deviance = locke_delta - (locke_to_natlaw + natlaw_delta)
+
+# Then calculate work, as above
+triangulated_work = triangulated_deviance * locke_freqs
+```
+
+This calculation is important to the argument because it's the first glimpse at how the procedures described in the opening section can be modified while staying true to the core principles of the theory.
+
+## Figure 6. "Children" in Locke and EEBO
+Creating these charts is really easy in the R package. Just run these commands:
+```r
+similarity_map(m, "children", numResults = 21, numGrps = 4)
+similarity_map(eebo, "children", numResults = 21, numGrps = 4)
+```
+
+![](./eebo_children.jpeg)
+
+![](./locke_children.jpeg)
 
 
 ```{r cars}
