@@ -28,8 +28,7 @@ similarity_map = function(mat,
                           keyword, 
                           method = "cosine", 
                           margin = 1,
-                          numResults = 40, 
-                          numGrps = 5) {
+                          numResults = 40) {
   if (class(mat) == "docMatrix") {
     mat = mat@mat
   }
@@ -69,100 +68,21 @@ similarity_map = function(mat,
       correlations[i, ] = apply(mat, 1, corr_method, mat[i, ])
     }
     rownames(correlations) = words
-    
-    hc = hclust(dist(correlations))
-    cluster <- cutree(hc, k=numGrps)
-    xy <- data.frame(cmdscale(dist(correlations)), factor(cluster), factor(words))
-    names(xy) <- c("x", "y", "clusts", "words")
-    
-    single_item_cluster = which(table(xy$clusts) == 1)
-    bad_hits = which(xy$clusts %in% single_item_cluster)
-    
-    outliers = c()
-    if (any(bad_hits)) {
-      outliers = xy$words[bad_hits]
-      xy = xy[-bad_hits,]
-    }
+    xy <- data.frame(cmdscale(dist(correlations)), factor(words))
+    names(xy) <- c("x", "y","words")
     
     xdiff = (max(xy$x) - min(xy$x)) / 4
     ydiff = (max(xy$y) - min(xy$y)) / 4
-    p = ggplot(xy, aes(x, y, label = words, group = clusts))
-    if (length(outliers) == 0) {
-      p = p + xlab("") 
-    }
-    if (length(outliers) == 1) {
-      p = p + xlab(paste("Outlier excluded from graph:", paste(outliers, collapse = ", "))) 
-    }
-    if (length(outliers) > 1) {
-      p = p + xlab(paste("Outliers excluded from graph:", paste(outliers, collapse = ", "))) 
-    } 
-    p = p + stat_density2d(aes(alpha = ..level.., fill = clusts), geom="polygon", bins = 30, size = 0) + 
-      scale_alpha_continuous(range=c(0.01,0.033)) +
+    p = ggplot(xy, aes(x, y, label = words))
+    
+    p = p +
       geom_text(colour = "black") +
       theme_bw() +
       xlim(min(xy$x) - xdiff, max(xy$x) + xdiff) +
       ylim(min(xy$y) - ydiff, max(xy$y) + ydiff) +
       ylab("") +
-      theme(axis.line = element_line(colour = "black"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.border = element_blank(),
-            axis.ticks = element_blank(),
-            axis.line.x = element_blank(),
-            axis.line.y = element_blank(),
-            legend.position = 'none',
-            text = element_text(size = 2),
-            title = element_text(size=10, face='bold'))
-    print(p)
-  }
-  if (margin == 2) {
-    mat = mat[,words]
-    correlations = matrix(0, length(words), length(words))
-    for (i in 1:nrow(correlations)) {
-      correlations[, i] = apply(mat, 2, corr_method, mat[, i])
-    }
-    rownames(correlations) = words
-    
-    hc = hclust(dist(correlations))
-    cluster <- cutree(hc, k=numGrps)
-    
-    data(tcp)
-    row.names(tcp) = tcp$TCP
-    titles = tcp[words,"Title"]
-    titles = substring(titles, 1, 20)
-    titles = paste(words, titles, sep=", ")
-    xy <- data.frame(cmdscale(dist(correlations)), factor(cluster), titles)
-    names(xy) <- c("x", "y", "clusts", "words")
-    
-    single_item_cluster = which(table(xy$clusts) == 1)
-    bad_hits = which(xy$clusts %in% single_item_cluster)
-    
-    outliers = c()
-    if (any(bad_hits)) {
-      outliers = xy$words[bad_hits]
-      xy = xy[-bad_hits,]
-    }
-    
-    xdiff = (max(xy$x) - min(xy$x)) / 4
-    ydiff = (max(xy$y) - min(xy$y)) / 4
-    
-    p = ggplot(xy, aes(x, y, label = words, group = clusts))
-    if (length(outliers) == 0) {
-      p = p + xlab("") 
-    }
-    if (length(outliers) == 1) {
-      p = p + xlab(paste("Outlier excluded from graph:", paste(outliers, collapse = ", "))) 
-    }
-    if (length(outliers) > 1) {
-      p = p + xlab(paste("Outliers excluded from graph:", paste(outliers, collapse = ", "))) 
-    } 
-    p = p + stat_density2d(aes(alpha = ..level.., fill = clusts), geom="polygon", bins = 30, size = 0) + 
-      scale_alpha_continuous(range=c(0.01,0.033)) +
-      geom_text(colour = "black") +
-      theme_bw() +
-      xlim(min(xy$x) - xdiff, max(xy$x) + xdiff) +
-      ylim(min(xy$y) - ydiff, max(xy$y) + ydiff) +
-      ylab("") +
+      xlab("") +
+      ggtitle(keyword) +
       theme(axis.line = element_line(colour = "black"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
