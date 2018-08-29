@@ -348,27 +348,21 @@ lines(x = 1:max(freqs), y = curve_of_semantic_normality[1:max(freqs)])
 
 Repeat the same process for *Macflecknoe* (A36643).
 
-## Figure 6
+## Section II: Applications
 Now we're getting into the case studies, and the ideas expressed in the main text of the theory start to deform a bit. This process begins with the study of a single document, John Locke's *Two Treatises of Government* (A48901). After a brief digression, I provide the code below.
 
 ##### a brief digression
 
-The fun thing about this first case study is that it's basically a stroll through the uncanny valley of digital literary studies. There a very strong assumption in quantitative analysis that what's being studied is a *real thing out there in the real world* and that the model is an *imperfect representation of that thing*. This is a misundertanding of modeling's basic metaphysical problem. We might choose to imagine that a model is a representation of some real thing, but that's an ontological commitment we bring to bear on the object, not a property of the object itself.
+The fun thing about this first case study is that it's basically a stroll through the uncanny valley of digital literary studies. There a very strong assumption in quantitative analysis that what's being studied is a *real thing out there in the real world* and that the model is an *imperfect representation of that thing*. This assumption informs the famous aphorism, "All models are wrong," but it's a misundertanding of modeling's basic metaphysical problem. We might choose to imagine that a model is a representation of some real thing, but that's an ontological commitment we bring to bear on the object, not a property of the object itself.
 
-This metaphysical problem in the epistemology of modeling is very similar to the problem that plagues twentieth-century debates on the topic of authorial intention. Just as it's perfectly possible and often plausible to behave as if statistics represent something real outside themselves, it's perfectly possible and often plausible to behave as if discourse represents a reality outside itself (an intention, perhaps). In either case, though, there's nothing about discourse that compels such a commitment.
+This metaphysical problem in the epistemology of modeling is very similar to the problem that plagues twentieth-century debates on the topic of authorial intention. The weird thing about a quantitative theory of intention is that obtrudes onto our awareness the process by which scholarship creates the objects to which we attach symbolic veridicality. By calling it a theory of "intention," I'm forcing the issue. 
 
-This is why I describe reality as an imaginary apparatus that surrounds explanation. Realities are produced by explanations, and intentions are produced by the critical discourse that names them. (Here I'm riffing of G.E.M. Anscombe more than anyone else.) This is true whether one maintains an intentionalist view of language or an anti-intentionalist view. Either way, you're stuck producing the intentions about which you hope to argue -- this was true of Searle and Derrida and their pointless disagreements, and it'll be true for anyone. It doesn't matter whether you believe what I'm saying here, because you are bound up in the same inexorable logic, versions of which have plagued the history of literary criticism since its inception. (Just ask Jonathan Swift, who coped with this dilemma by attributing it to bad faith.)
-
-For someone doing quantitative analysis, this is actually kind of freeing, because it means that your models are free to produce logics internal to themselves, and you're perfectly free all the same to believe that those logics maintain some analogous relation to the realities you imagine for them.
-
-In practice, if you're doing corpus analytics, this means that the "findings" of your empirical tests will always depend on choices made during data curation and analysis. Everybody knows this and everybody says it, but it's really hard to keep in mind when concrete results of statistical tests seem so close to something like the truth. This why I call it the "uncanny valley of valid explanation" Just as the intentions a biographically inclined scholar finds in a text are produced by the work of contextualization, so too the intentions found by any mathematical procedure will be produced through the act of analysis.
-
-What was fun about writing the Locke case study was the pleasure of scurrying around in the nooks and crannies of the space of this intellectual discomfort. On one hand, I unapologetically refer to my findings as representations of Locke's intent. (They're more trustworthy then any exemplary quotations *you* might choose.) On the other hand, it's inescapably obvious that the findings are produced by the methodology, and it's bizarrely at odds with common sense that changing the corpus of comparison would change Locke's intent.
+What was fun about writing the Locke case study was the pleasure of scurrying around in the nooks and crannies of the space of this intellectual discomfort. On one hand, I unapologetically refer to my findings as representations of Locke's intent. (They're more trustworthy then any exemplary quotations *you* might choose.) On the other hand, it's inescapably obvious that the results are produced by the methodology, and it's exhilaratingly at odds with common sense that changing the corpus of comparison could change Locke's intentions. Yet, that's exactly what this first case study exposes.
 
 digression concluded ...
 
 ### Table 1.1
-The basic idea of this case study is to perform two related sets of comparisons. I want to compare Locke's *Treatise* to the EEBO model, as above, but I also want to parse into it in a little more detail. Based on what data scientists call my "domain expertise," I knew that Locke joined a vibrant field of debate around questions of natural law, and based on my (whaddaya call it?) "technical good guessery," I figured that it'd be trivially simple to recover documents in that field of debate by just finding those that use words in roughly the same proportion that Locke uses them. Once that subcorpus is identified, I triangulate the conceptual work scores for Locke against those of his peers.
+The basic idea of this case study is to perform two related sets of comparisons. I want to compare Locke's *Treatise* to the EEBO model, as above, but I also want to parse it in a little more detail. Based on what data scientists lamely call my "domain expertise," I knew that Locke joined a vibrant field of debate around questions of natural law, and based on my (whaddaya call it?) "technical good guessery," I figured that it'd be trivially simple to recover documents in that field of debate by just finding those that use words in roughly the same proportion that Locke uses them. Once that subcorpus is identified, I triangulate the conceptual work scores for Locke against those of his peers.
 
 To find the 100 documents most-similar to Locke's *Treatises*, run this command:
 
@@ -376,7 +370,7 @@ To find the 100 documents most-similar to Locke's *Treatises*, run this command:
 locke_ids = similarity(deebo, "A48901", margin = 2, fullResults = T)
 locke_ids = sort(locke_ids, decreasing = T)[1:100]
 ```
-Note that Table 1.1 ranks documents by *distance* but the function above returns *similarity*, so to reproduce the numbers in the table itself you'll have to run the command `locke_ids = 1 - locke_ids`.
+Note that Table 1.1 in the article ranks documents by *distance* but the function above returns *similarity*, so to reproduce the numbers in the table itself you'll have to run the command `locke_ids = 1 - locke_ids`.
 
 If you have downloaded the full dataset, you could write a for loop that iterates over these id numbers, loading the 100 files one-by-one, and each time adding them to the subcorpus matrix. It'd look something like this.
 
@@ -404,14 +398,14 @@ data(natlaw)
 Table 1.2 shows normalized conceptual work. To calculate that:
 
 ```r
-data("A48901")
+data(A48901)
 # Now calculate delta for each word
 delta = c()
 for (i in 1:nrow(m)) {
   delta = c(delta, semantic_distance(m[i,],eebo[i,]))
 }
+delta[is.na(delta)] = 0
 locke_delta = delta
-locke_delta[is.na(delta)] = 0
 locke_freqs = deebo[,"A48901"]
 
 ```
@@ -430,12 +424,12 @@ locke_work = conceptual_work(freq = locke_freqs, cos_dist = locke_delta)
 # Then recalculate delta over the natlaw word-context matrix
 delta = c()
 for (i in 1:nrow(natlaw)) {
-  delta = c(delta, semantic_distance(m[i,],eebo[i,]))
+  delta = c(delta, semantic_distance(natlaw[i,],eebo[i,]))
 }
 delta[is.na(delta)] = 0
 natlaw_delta = delta
 
-natlaw_freqs = rowSums(deebo[,names(locke_ids)])
+natlaw_freqs = rowSums(deebo[,locke_ids])
 
 natlaw_work = conceptual_work(natlaw_freqs, natlaw_delta)
 ```
@@ -465,23 +459,109 @@ triangulated_work = triangulated_deviance * locke_freqs
 This calculation is important to the argument because it's the first glimpse at how the procedures described in the opening section can be modified while staying true to the core principles of the theory.
 
 ## Figure 6. "Children" in Locke and EEBO
-Creating these charts is really easy in the R package. Just run these commands:
+Creating these charts is really easy in the R package. Just run these commands.
+
+First over the full EEBO model.
 ```r
-similarity_map(m, "children", numResults = 21, numGrps = 4)
-similarity_map(eebo, "children", numResults = 21, numGrps = 4)
+similarity_map(eebo, "children", numResults = 25)
 ```
 
 ![](./eebo_children.jpeg)
 
+
+
+
+Then over the model of Locke's *Treatises*.
+
+```r
+similarity_map(m, "children", numResults = 25)
+```
 ![](./locke_children.jpeg)
 
+## Aphra Behn
+The model of Aphra Behn's works was compiled just as the `natlaw` model above, but using works with Behn listed as first author. There were 45 such documents in the corpus at the time of data curation, and the list of TCP numbers included in stored in the `intention` package under the name `behn_ids`.
 
-```{r cars}
-summary(cars)
+```r
+data(behn_mat)
+
+delta = c()
+for (i in 1:nrow(behn_mat)) {
+  delta = c(delta, semantic_distance(behn_mat[i,],eebo[i,]))
+}
+delta[is.na(delta)] = 0
+behn_delta = delta
+
+behn_freqs = rowSums(deebo[,behn_ids])
+
+behn_work = conceptual_work(behn_freqs, behn_delta)
 ```
 
+Now load *Love Letters* (A27301). In the following calculation, we simply compare the novel to Behn's works, rather than to EEBO.
 
-#### A brief digression concerning 'objectivity'
+```r
+data(A27301)
+
+delta = c()
+for (i in 1:nrow(behn_mat)) {
+  delta = c(delta, semantic_distance(m[i,],behn_mat[i,]))
+}
+delta[is.na(delta)] = 0
+love_delta = delta
+love_freqs = deebo[,"A27301"]
+love_work = conceptual_work(love_freqs, love_delta)
+```
+Now triangulate, as above.
+
+```r
+delta = c()
+for (i in 1:nrow(behn_mat)) {
+  delta = c(delta, semantic_distance(m[i,],eebo[i,]))
+}
+delta[is.na(delta)] = 0
+love_to_eebo = delta
+triangulated_deviance = love_to_eebo - (behn_delta + love_delta)
+triangulated_work = conceptual_work(love_freqs, triangulated_deviance)
+```
+
+## Figure 7
+This figure is produced with a single command, just as above.
+First, vows:
+```r
+similarity_map(behn_mat, "vows", numResults = 25)
+```
+
+![](./behn_vows.jpeg)
+
+
+Then, devil
+```r
+similarity_map(behn_mat, "devil", numResults = 25)
+```
+![](./behn_devil.jpeg)
+
+## Figures 8 & 9
+The final case study looks at what happens once intentions have been dislocated from ideologies the self. If meanings can be broken up into semantic pieces and reassembled based on the "author" field in the metadata, why not any field?
+
+As I mention in the article, changing the frame of analysis requires changing the basic data structure. Rather than a dimension of documents, *D*, we need a dimension of years, *T*. Rather than use raw word counts, as above, this model uses what's called "document-frequency" -- that is, the proportion of documents, in a given year, that contain each word. Lastly, this model tests not for semantic deviance but semantic similarity -- for moments when words become themselves in history.
+
+Here are the scripts used to build the model.
+
+```r
+```
+
+At the end are two matrices. The dataset `deebo` is replaced by another called `yearly`, which gathers the frequencies and another, named `teebo`, which ...
+
+To make Figure 8, you just :
+
+```r
+```
+
+To make Figure 9:
+
+```r
+```
+
+## Final discussion
 
 Critics of quantitative analysis in the humanities often like to point out ways that digital humanities scholarship fails to be objective. Choices made in the process of analysis, they point out with grave expressions of concern, change the results of the analysis. What seems like objective truth is really just an arbitrary consequence of your procedures! *J'accuse Gavin!*
 
