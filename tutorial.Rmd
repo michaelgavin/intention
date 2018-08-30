@@ -21,7 +21,7 @@ If you're just reading this online, you don't need to do anything. But if you'd 
 
 What you have to download will depend on what you want to do. If you only hope to recreate the graphs on your own machine and you're content with very little independent experimentation, everything you need is available in the `intention` R package, which can be downloaded and installed from Github.
 
-Assuming that you have R installed and the `devtools` package loaded (as well as the `ggplot2` and `Matrix` packages), you can get everything you need by running this command:
+Assuming that you have R installed and the `devtools` package loaded (as well as the `ggplot2` and `Matrix` packages), you can get everything you need by running this command.
 
 ```r
 devtools::install_github("https://michaelgavin.github.com/intention")
