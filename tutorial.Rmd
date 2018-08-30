@@ -113,7 +113,7 @@ load(system.file("extdata", "deebo.rda", package = "intention"))
 
 Now load the data for an individual document and compare:
 ```r
-data(A48901)
+load(system.file("extdata", "A48901.rda", package = "intention"))
 # Now calculate delta for each word
 delta = c()
 for (i in 1:nrow(m)) {
@@ -163,7 +163,7 @@ similarity(m, "children")
 Then look at how Richard Baxter construes children:
 
 ```r
-data("A26981")
+load(system.file("extdata", "A26981.rda", package = "intention"))
 similarity(m, "children")
 ```
 "Why chickens?" you might be wondering. It comes from Baxter's paraphrase of the Gospel of St. Luke, chapter 13 verse 34:
@@ -318,7 +318,7 @@ The charts in Figure 5 are the same as those of Figure 3, but with the normaliza
 threshold = set_threshold(avgs = averages, devs = deviations)
 
 # Load Paradise Lost
-data(A50919)
+load(system.file("extdata", "A50919.rda", package = "intention"))
 
 # Now calculate delta for each word
 delta = c()
@@ -389,14 +389,14 @@ for (i in 1:length(ids)) {
 Alternatively, you could just load the data from the `intention` package directly.
 
 ```r
-data(natlaw)
+load(system.file("extdata", "natlaw.rda", package = "intention"))
 ```
 
 ### Table 1.2
 Table 1.2 shows normalized conceptual work. To calculate that:
 
 ```r
-data(A48901)
+load(system.file("extdata", "A48901.rda", package = "intention"))
 data("locke_ids")
 # Now calculate delta for each word
 delta = c()
@@ -474,7 +474,7 @@ similarity_map(eebo, "children", numResults = 25)
 Then over the model of Locke's *Treatises*.
 
 ```r
-data("A48901")
+load(system.file("extdata", "A48901.rda", package = "intention"))
 similarity_map(m, "children", numResults = 25)
 ```
 ![](./locke_children.jpeg)
@@ -483,7 +483,7 @@ similarity_map(m, "children", numResults = 25)
 The model of Aphra Behn's works was compiled just as the `natlaw` model above, but using works with Behn listed as first author. There were 45 such documents in the corpus at the time of data curation, and the list of TCP numbers included in stored in the `intention` package under the name `behn_ids`.
 
 ```r
-data(behn_mat)
+load(system.file("extdata", "behn_mat.rda", package = "intention"))
 
 delta = c()
 for (i in 1:nrow(behn_mat)) {
@@ -500,7 +500,7 @@ behn_work = conceptual_work(behn_freqs, behn_delta)
 Now load *Love Letters* (A27301). In the following calculation, we simply compare the novel to Behn's works, rather than to EEBO.
 
 ```r
-data(A27301)
+load(system.file("extdata", "A27301.rda", package = "intention"))
 
 delta = c()
 for (i in 1:nrow(behn_mat)) {
@@ -623,7 +623,7 @@ To make Figure 8, you just print out the values of any given row as a timeline.
 Here's the timeline for "oates."
 
 ```r
-data(teebo)
+load(system.file("extdata", "teebo.rda", package = "intention"))
 plot(teebo["oates",], type = "l", lwd = 2)
 ```
 ![](./oates.jpeg)
