@@ -21,10 +21,14 @@ If you're just reading this online, you don't need to do anything. But if you'd 
 
 What you have to download will depend on what you want to do. If you only hope to recreate the graphs on your own machine and you're content with very little independent experimentation, everything you need is available in the `intention` R package, which can be downloaded and installed from Github.
 
-Assuming that you have R installed and the `devtools` package loaded (as well as the `ggplot2` and `Matrix` packages), you can get everything you need by running this command.
+Assuming that you have R installed and the `devtools` package loaded (as well as the `ggplot2` and `Matrix` packages), you can get everything you need by first cloning the repository and then running these commands.
+
+To clone the directory, go to https://github.com/michaelgavin/intention and click "Clone or Download."
+NOTE: Because of how the data is structured, the `install_github()` function doesn't work. You need to clone the repository and install from your local directory.
 
 ```r
-devtools::install_github("https://michaelgavin.github.com/intention")
+# You'll have to change the filepath to your local directory
+devtools::install("~/Documents/Github/intention")
 ```
 
 Because the data files in the `intention` package are pretty big, it might take a while to download. Once it does, you need to activate the libraries in R:
@@ -195,6 +199,7 @@ What's weird about this is that the points in Figure 4 don't correspond with ind
 
 Calculating all these semantic distances takes a long time. **Don't try this at home!** (unless you don't need to use your computer for a few hours.) However, here's the full script for reference. -- I won't describe it step-by-step here. Email me if you have any questions or if you find any mistakes.
 ```r
+# Don't run these commands unless you've downloaded the complete dataset from Dataverse
 mat_loc = "/home/mgavin/EEBO-RDA/"
 
 filenames = paste(mat_loc, ids, ".rda", sep="")
