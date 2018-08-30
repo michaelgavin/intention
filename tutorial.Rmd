@@ -96,9 +96,6 @@ The functions in the package follow what's described in the article. I wrote the
 3. `semantic_transparency()` calculates the entropy of a vector, taken to the base of that vector's length.
 4. `set_threshold()` draws a normalization curve over a set of averages and standard deviations.
 5. `conceptual_word_adj()` calculates normalized conceptual work by adjusting each value to the threshold.
-
-I also borrow a couple functions from my old `empson` package for computing over matrices:
-
 6. `similarity()` just iterates `semantic_distance()` over a matrix.
 7. `similarity_map()` draws the word clouds used in the article.
 
@@ -115,8 +112,8 @@ load(system.file("extdata", "deebo.rda", package = "intention"))
 ```
 
 Now load the data for an individual document and compare:
-```{r]
-data("A48901")
+```r
+data(A48901)
 # Now calculate delta for each word
 delta = c()
 for (i in 1:nrow(m)) {
@@ -255,7 +252,7 @@ and
 
 Where bar-delta in the first formula is the `averages` vector and little-sigma in the second formula is the `deviations` vector.
 
-These take the form of a linear model in which one of the variables has been transformed by the logarithm. I knew a regular linear regression model wouldn't fit this data, and I knew that what I wanted was a nice little line swooping through the middle like the Nike swoosh, just as the dashed line in Figure 4 swooshes. (From my reading in the field of statistics I have learned that "swooshes" is the technical term.) So I did what any self-respecting data researcher does: I stole code from StackExchange and repurposed it for my data. The webpage I borrowed the code from is [here]("https://stats.stackexchange.com/questions/176595/simple-log-regression-model-in-r"). 
+These take the form of a linear model in which one of the variables has been transformed by the logarithm. I knew a regular linear regression model wouldn't fit this data, and I knew that what I wanted was a nice little line swooping through the middle like the Nike swoosh, just as the dashed line in Figure 4 swooshes. (From my reading in the field of statistics I have learned that "swooshes" is the technical term.) So I did what any self-respecting data researcher does: I stole code from StackExchange and repurposed it for my data. The webpage I borrowed the code from is [here](https://stats.stackexchange.com/questions/176595/simple-log-regression-model-in-r). 
 
 A log-linear model takes the form *y = ax + b* but the value of *x* has been log transformed to account for the way the curve flattens as it extends to higher values. Using the `lm()` function in R for drawing linear models, the function uses a least-squares method to estimate the y value for each point along the x-axis. In the `intention` package this is all built into the `set_threshold` function, but here's the relevant code:
 
@@ -281,7 +278,7 @@ This curve is used as the basis for setting a threshold of semantic significance
 and it's represented in the commands below using this line of code:
 
 ```r
-curve_of_semantic_normality = threshold$delta + (threshold$mu * threshold$psi)
+curve_of_semantic_normality = threshold$delta + (threshold$mu * threshold$phi)
 ```
 
 The variable mu is set by the researchers based on their judgment and based on how they plan to paraphrase the output of the model into descriptive prose. In most situations, I suggest, they'll either want to use *mu = 0*, which just represents each instance of conceptual work against the average, or empirically using this formula:
@@ -342,7 +339,7 @@ plot(freqs[ord], delta[ord], type = "p", pch = 20, col = "gray")
 hits = order(c_work, decreasing = T)[1:12]
 text(freqs[hits], delta[hits], labels = names(c_work[hits]))
 
-curve_of_semantic_normality = (threshold$mu * threshold$psi) + threshold$delta
+curve_of_semantic_normality = (threshold$mu * threshold$phi) + threshold$delta
 lines(x = 1:max(freqs), y = curve_of_semantic_normality[1:max(freqs)])
 ```
 ![](./milton_plot.jpeg)
@@ -400,6 +397,7 @@ Table 1.2 shows normalized conceptual work. To calculate that:
 
 ```r
 data(A48901)
+data("locke_ids")
 # Now calculate delta for each word
 delta = c()
 for (i in 1:nrow(m)) {
@@ -455,6 +453,7 @@ triangulated_deviance = locke_delta - (locke_to_natlaw + natlaw_delta)
 
 # Then calculate work, as above
 triangulated_work = triangulated_deviance * locke_freqs
+sort(triangulated_work, decreasing = T)[1:5]
 ```
 
 This calculation is important to the argument because it's the first glimpse at how the procedures described in the opening section can be modified while staying true to the core principles of the theory.
@@ -475,6 +474,7 @@ similarity_map(eebo, "children", numResults = 25)
 Then over the model of Locke's *Treatises*.
 
 ```r
+data("A48901")
 similarity_map(m, "children", numResults = 25)
 ```
 ![](./locke_children.jpeg)
@@ -522,6 +522,7 @@ delta[is.na(delta)] = 0
 love_to_eebo = delta
 triangulated_deviance = love_to_eebo - (behn_delta + love_delta)
 triangulated_work = conceptual_work(love_freqs, triangulated_deviance)
+sort(triangulated_work, decreasing = T)[1:5]
 ```
 
 ## Figure 7
@@ -656,10 +657,10 @@ One final word, too, which is basically a personal note (though there might be a
 
 The problem, though, was an enduring disconnect between the methods and the conclusions. It was always possible for readers to separate the theoretical underpinnings from *something else I seemed really to be saying*. In fact, that's often how people engaged my work. They'd kind of wave their left hand and wax on to me, "OK, Mike, all the computational stuff aside, here's what I think of your argument." I don't mean to complain or to suggest the failure was theirs. These people were my friends and sometimes my collaborators. It's a natural reaction. But of course, to me in my heart-of-hearts, the computer stuff *was* the argument. I didn't want people to set that aside, and so I wrote the mathematical theory of intention specifically to make that reaction impossible. People can hate on the work or criticize it for any number of valid reasons. But they can't credibly maintain the fiction, even to themselves, that they're engaging the ideas unless they're actually willing to engage the ideas.
 
-But I also was disappointed in my previous work for another reason. Looking back on it, it's all fine and good, I suppose. I mean, I wrote a dissertation and the dissertation had an argument, the way dissertations do. I published in journals. When I turned to digital humanities, my imagination was fired by the idea that computerized textuality opened up new forms of critical thinking, and so I set myself the goal of demonstrating how quantitative methods can be applied to the humanities, how they can be used to say things about culture that are interesting and true. And I did that pretty well I guess. But I never wrote a piece that seemed to fulfill the original ambition -- to discover previously unthinkable thoughts. I'm not sure this piece fulfills that ambition either, but it gets closer than I'd been able to get before.
+But I also was disappointed in my previous work for another reason. Looking back on it, it's all fine and good, I suppose. I mean, I wrote a dissertation and the dissertation had an argument, the way dissertations do. I published in journals. When I turned to digital humanities, my imagination was fired by the idea that computerized textuality opened up new forms of critical thinking, and so I set myself the goal of demonstrating how quantitative methods can be applied to the humanities, how they can be used to say things about culture that are interesting and true. And I did that pretty well, I guess. But I never wrote a piece that seemed to fulfill the original ambition -- to discover previously unthinkable thoughts. I'm not sure this piece fulfills that ambition either, but it gets closer than I'd been able to get before.
 
-It's been very exciting the last few years to see how the field of cultural analytics has developed. It wasn't that long ago -- 2014 or 2015 -- that sniping critics writing in bad faith could thump their chests on social media and say computational literary studies is a worthless field that hasn't accomplished anything. And, for sure, I wouldn't want to go back to the 1990s and early 2000s, when the mark of critical sophistication involved highly charismatic, authoritative *thinkers* opining on "the digital." But sometimes I feel like something has been lost. That we're all getting a little too serious, too modest, too content with proving, yet again, that yes, you really can learn something with digital methods.
+It's been very exciting the last few years to see how the field of cultural analytics has developed. It wasn't that long ago -- 2014 or 2015 -- that sniping critics writing in bad faith could thump their chests on social media and say computational literary studies is a worthless field that hadn't accomplished anything. And, for sure, I wouldn't want to go back to the 1990s and early 2000s, when the standard of critical sophistication involved opining about hypertext. But sometimes I feel like something has been lost, that we're all getting a little too serious, too modest, too content with proving, yet again, that yes, you really can learn something with digital methods.
 
-I don't want to "really learn something." I want to re-think everything. I want to be transformed. I want to be impinged upon. I want to be shattered and molded and broken and reborn in love. I want to feel my mind unfurl across the contours of alien ideas.
+I don't want to "really learn something." I want to re-think everything. I want to be transformed. I want to be impinged upon. I want to be crafted. I want to feel my mind unfurl across the contours of alien ideas.
 
 And I don't want to be an expert in anything. God save me from that hell.

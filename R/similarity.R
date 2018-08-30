@@ -60,18 +60,13 @@
 #' similarity(mat = eebo, vec = "rights", fullResults = TRUE)
 #' 
 #' @export
-similarity = function(mat, vec, method = "cosine", margin = 1, fullResults = F) {
+similarity = function(mat, vec, margin = 1, fullResults = F) {
   cos_sim = function(x,y) { x %*% y / (sqrt(x%*%x) * sqrt(y%*%y)) }
-  euc_dist = function(x, y) { sqrt(sum((x - y) ^ 2)) }
   
-  if (class(mat) == "docMatrix") {
-    mat <- mat@mat
-  }
-  
-  if (length(vec) %in% dim(mat) == F) {
+  if (length(vec) == 1) {
     keyword = vec
     if (margin == 1) { 
-      if (keyword %in% row.names(mat) == F) stop("Your keyword doesn't match any of your matrix's row names.")
+      if (keyword %in% rownames(mat) == F) stop("Your keyword doesn't match any of your matrix's row names.")
       vec = mat[keyword,] 
     }
     if (margin == 2) { 
@@ -79,32 +74,9 @@ similarity = function(mat, vec, method = "cosine", margin = 1, fullResults = F) 
       vec = mat[,keyword] 
     }
   }
-  
-  if (method %in% c("cosine", "euclidean", "covariance", "pearson") == F) {
-    stop("Method must be specified as 'cosine', 'euclidean', 'covariance', or 'pearson'.")
-  }
-  if (method == "cosine") {
-    results = apply(mat, margin, cos_sim, vec)
-  }
-  if (method == "euclidean") {
-    results = apply(mat, margin, euc_dist, vec)
-  }
-  if (method == "covariance") {
-    results = apply(mat, margin, cov, vec)
-  }
-  if (method == "pearson") {
-    results = suppressWarnings(apply(mat, margin, cor, vec))
-  }
-  
+  results = apply(mat, margin, cos_sim, vec)
   if (fullResults == F) {
-    if (length(vec) == 1) { 
-      results = results[-which(names(results) == vec)] 
-    }
-    if (method == "euclidean") {
-      results = sort(results)[1:12]
-    } else {
       results = sort(results, decreasing = T)[1:12]
-    }
   }
   return(results)
 }
