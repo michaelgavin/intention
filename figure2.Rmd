@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Figure 2: The virtual pseudo-document
 
-One of the peer reviewers for the article expressed curiosity about Figure 2, wondering exactly how it was created. I don't get into it too deeply in the essay itself, because the technical details really aren't important here at all. The image isn't meant to "prove" anything. It's just meant to demonstrate a basic principle -- which I argue elsewhere seems to hold over the EEBO corpus pretty well -- that semantic variation in a document, when compared to a corpus that contains it, tends to vary in the shape of a log-linear model.<sup>*</sup>
+One of the peer reviewers for the article expressed curiosity about Figure 2, wondering exactly how it was created. I don't get into it too deeply in the essay itself, because the technical details really aren't important here at all. The image isn't meant to "prove" anything. It's just meant to demonstrate a basic principle -- which I argue elsewhere seems to hold over the EEBO corpus pretty well -- that semantic variation in a document, when compared to a corpus that contains it, tends to vary in the shape of a log-linear model.
 
 I refer to the virtual document as a Markov model. Randomly generating texts is a fun and complex line of research in information science that I am happy to confess I know very little about. The way I produced this just kind of followed the same procedure Claude Shannon describes in *A Mathematical Theory of Communication*. It isn't particularly complicated and isn't meant to be particularly rigorous conceptually.
 
@@ -138,9 +138,7 @@ The precise look of the plot will vary from instance to instance, and there will
 1. How dependent is semantic deviance on frequency? Very dependent. 
 2. How evenly is semantic variation distributed? Very evenly.
 
-If I were an information scientist I'd probably have to run this whole simulation a few hundred times and record the statistics, but it's really such a simple process I never thought it worth doing, because the outcome really seems baked into the simulation.
-
-In a very hand-waving kind of way, I'll say that every time I've run this -- maybe 5-10 times? -- the plots come out looking pretty much exactly like the one in the article, and the semantic transparency is always around .98, give or take.
+If I were an information scientist I'd probably have to run this whole simulation a few hundred times and record the statistics, but it's really such a simple process I never thought it worth doing, because the outcome really seems baked into the simulation. The variation that exists occurs because the Markov model is built using a joint-probability distribution that looks only at the next word, but the semantic model measures over a five-word context window. In a very hand-waving kind of way, I'll say that every time I've run this -- maybe 5-10 times? -- the plots come out looking pretty much exactly like the one in the article, and the semantic transparency is always around .98, give or take.
 
 ### Discussion
 The whole technique of randomly generating documents is one of the weirdly exciting directions computational literary theory could go into. The basic gambit is to devise some process that you think captures something generally true about your corpus, then you use that process to create a virtual document (or virtual corpus), then you compare what you find in the imaginary corpus to whatever you find in the real corpus. The more similar the imaginary world is to the real world, the more accurately your idea describes *something like* real processes. Points where the model gets it wrong become interesting in a new way, because they reveal what the model can't capture.
@@ -148,5 +146,3 @@ The whole technique of randomly generating documents is one of the weirdly excit
 This basic set of principles informs a main thread of argument through my essay on intention. On one hand, I'm showing a strong relationship between power-law frequency distributions and semantic variation. This is, in and of itself, a pretty cool thing that to my knowledge nobody has ever noticed, certainly not in literary studies. However, on the other hand, I'm also arguing that points where the model breaks down -- where documents exhibit levels of conceptual work that are statistically impossible if generated randomly -- are precisely those points in the corpus where human volition is most clearly visible.
 
 Anyway, it'd be fun to think a little longer and harder about what it means to randomly generate a document and what might be learned from the process. I think of this as one of the more exciting frontiers for literary mathematics, and I hope someone's exploring it, but I don't personally know of anyone.
-
-<sup>*</sup> You might object here that I'm being pretty slippery about what it means to "prove" anything, and that what counts as a claim and as evidence is being thrown into really strange flux by this style of argument. Fair enough! That's a can of worms I dumped all over the floor.
